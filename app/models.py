@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -13,7 +13,14 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
-# --- Référentiels personnalisables ---
+class AppConfig(Base):
+    __tablename__ = "app_config"
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String(100), unique=True, nullable=False)
+    value = Column(Text, nullable=True)
+
+
+# --- Référentiels fixes ---
 
 class RefStatut(Base):
     __tablename__ = "ref_statuts"
@@ -65,6 +72,38 @@ class RefDomaine(Base):
     ordre = Column(Integer, default=0)
 
 
+# --- Référentiels dynamiques (champs personnalisés) ---
+
+class RefCustomType(Base):
+    __tablename__ = "ref_custom_types"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)   # slug ex: "region"
+    label = Column(String(100), nullable=False)               # libellé ex: "Région"
+    ordre = Column(Integer, default=0)
+    active = Column(Boolean, default=True)
+    values = relationship("RefCustomValue", back_populates="custom_type",
+                          cascade="all, delete-orphan", order_by="RefCustomValue.ordre")
+
+
+class RefCustomValue(Base):
+    __tablename__ = "ref_custom_values"
+    id = Column(Integer, primary_key=True, index=True)
+    type_id = Column(Integer, ForeignKey("ref_custom_types.id"), nullable=False)
+    label = Column(String(200), nullable=False)
+    ordre = Column(Integer, default=0)
+    custom_type = relationship("RefCustomType", back_populates="values")
+
+
+class HabilitationCustomField(Base):
+    __tablename__ = "habilitation_custom_fields"
+    id = Column(Integer, primary_key=True, index=True)
+    habilitation_id = Column(Integer, ForeignKey("habilitations.id"), nullable=False)
+    custom_type_id = Column(Integer, ForeignKey("ref_custom_types.id"), nullable=False)
+    custom_value_id = Column(Integer, ForeignKey("ref_custom_values.id"), nullable=True)
+    custom_type = relationship("RefCustomType")
+    custom_value = relationship("RefCustomValue")
+
+
 # --- Habilitations ---
 
 class Habilitation(Base):
@@ -98,11 +137,11 @@ class Habilitation(Base):
     creator = relationship("User", foreign_keys=[created_by])
     updater = relationship("User", foreign_keys=[updated_by])
 
-    history = relationship(
-        "HabilitationHistory",
-        back_populates="habilitation",
-        order_by="HabilitationHistory.changed_at.desc()"
-    )
+    history = relationship("HabilitationHistory", back_populates="habilitation",
+                           order_by="HabilitationHistory.changed_at.desc()")
+    custom_fields = relationship("HabilitationCustomField",
+                                 primaryjoin="Habilitation.id == HabilitationCustomField.habilitation_id",
+                                 cascade="all, delete-orphan")
 
 
 class HabilitationHistory(Base):

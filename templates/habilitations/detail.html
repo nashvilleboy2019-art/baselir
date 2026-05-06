@@ -14,23 +14,17 @@
       <span class="inline-flex items-center gap-1 text-sm text-red-600 font-medium">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        Attestation expirée
+        </svg>Attestation expirée
       </span>
       {% endif %}
     </div>
     {% if request.session.get("role") == "responsable" %}
     <div class="flex gap-2">
       <a href="/habilitations/{{ h.id }}/edit"
-         class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">
-        Modifier
-      </a>
+         class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">Modifier</a>
       <form method="post" action="/habilitations/{{ h.id }}/delete"
             onsubmit="return confirm('Supprimer cette habilitation ?')">
-        <button type="submit"
-                class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 text-sm font-medium">
-          Supprimer
-        </button>
+        <button type="submit" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 text-sm font-medium">Supprimer</button>
       </form>
     </div>
     {% endif %}
@@ -41,98 +35,78 @@
     <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
       <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
     </svg>
-    <strong>Écart détecté :</strong> la date des attestations ({{ h.date_attestation.strftime('%d/%m/%Y') }}) est dépassée.
+    <strong>Écart :</strong> la date des attestations ({{ h.date_attestation.strftime('%d/%m/%Y') }}) est dépassée.
   </div>
   {% endif %}
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
       <h2 class="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">Identité</h2>
-      <dl class="space-y-3">
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Nom et Prénom</dt>
-          <dd class="font-semibold text-gray-800 mt-0.5">{{ h.nom_prenom }}</dd>
-        </div>
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Statut</dt>
-          <dd class="mt-0.5">
-            {% if h.statut %}
-            <span class="badge-{{ h.statut.color }} text-sm px-2 py-0.5 rounded-full font-medium">{{ h.statut.label }}</span>
-            {% else %}<span class="text-gray-400">—</span>{% endif %}
-          </dd>
-        </div>
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Filiale du Groupe</dt>
-          <dd class="text-gray-700 mt-0.5">{{ h.filiale.label if h.filiale else '—' }}</dd>
-        </div>
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Description</dt>
-          <dd class="text-gray-700 mt-0.5">{{ h.description.label if h.description else '—' }}</dd>
-        </div>
+      <dl class="space-y-3 text-sm">
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Nom et Prénom</dt>
+          <dd class="font-semibold text-gray-800 mt-0.5">{{ h.nom_prenom }}</dd></div>
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Statut</dt>
+          <dd class="mt-0.5">{% if h.statut %}<span class="badge-{{ h.statut.color }} text-sm px-2 py-0.5 rounded-full font-medium">{{ h.statut.label }}</span>{% else %}<span class="text-gray-400">—</span>{% endif %}</dd></div>
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Filiale du Groupe</dt>
+          <dd class="text-gray-700 mt-0.5">{{ h.filiale.label if h.filiale else '—' }}</dd></div>
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Description</dt>
+          <dd class="text-gray-700 mt-0.5">{{ h.description.label if h.description else '—' }}</dd></div>
       </dl>
     </div>
 
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
       <h2 class="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">Organisation</h2>
-      <dl class="space-y-3">
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Société</dt>
-          <dd class="text-gray-700 mt-0.5">{{ h.societe.label if h.societe else '—' }}</dd>
-        </div>
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Service</dt>
-          <dd class="text-gray-700 mt-0.5">{{ h.service.label if h.service else '—' }}</dd>
-        </div>
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Rôle</dt>
-          <dd class="text-gray-700 mt-0.5 font-medium">{{ h.role.label if h.role else '—' }}</dd>
-        </div>
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Domaine</dt>
-          <dd class="text-gray-700 mt-0.5 font-medium">{{ h.domaine.label if h.domaine else '—' }}</dd>
-        </div>
+      <dl class="space-y-3 text-sm">
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Société</dt>
+          <dd class="text-gray-700 mt-0.5">{{ h.societe.label if h.societe else '—' }}</dd></div>
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Service</dt>
+          <dd class="text-gray-700 mt-0.5">{{ h.service.label if h.service else '—' }}</dd></div>
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Rôle</dt>
+          <dd class="text-gray-700 mt-0.5 font-medium">{{ h.role.label if h.role else '—' }}</dd></div>
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Domaine</dt>
+          <dd class="text-gray-700 mt-0.5 font-medium">{{ h.domaine.label if h.domaine else '—' }}</dd></div>
       </dl>
     </div>
 
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
       <h2 class="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">Dates</h2>
-      <dl class="space-y-3">
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Date d'octroi</dt>
-          <dd class="text-gray-700 mt-0.5">{{ h.date_octroi.strftime('%d/%m/%Y') if h.date_octroi else '—' }}</dd>
-        </div>
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Date des attestations</dt>
+      <dl class="space-y-3 text-sm">
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Date d'octroi</dt>
+          <dd class="text-gray-700 mt-0.5">{{ h.date_octroi.strftime('%d/%m/%Y') if h.date_octroi else '—' }}</dd></div>
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Date des attestations</dt>
           <dd class="mt-0.5 {% if expired %}text-red-600 font-semibold{% else %}text-gray-700{% endif %}">
-            {{ h.date_attestation.strftime('%d/%m/%Y') if h.date_attestation else '—' }}
-            {% if expired %} ⚠{% endif %}
-          </dd>
-        </div>
+            {{ h.date_attestation.strftime('%d/%m/%Y') if h.date_attestation else '—' }}{% if expired %} ⚠{% endif %}
+          </dd></div>
       </dl>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    {% if h.custom_fields %}
+    <div class="bg-white rounded-xl border border-teal-200 shadow-sm p-6">
+      <h2 class="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">Champs personnalisés</h2>
+      <dl class="space-y-3 text-sm">
+        {% for cf in h.custom_fields %}
+        <div>
+          <dt class="text-xs text-gray-500 uppercase tracking-wide">{{ cf.custom_type.label }}</dt>
+          <dd class="text-gray-700 mt-0.5">{{ cf.custom_value.label if cf.custom_value else '—' }}</dd>
+        </div>
+        {% endfor %}
+      </dl>
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 {% if not h.custom_fields %}lg:col-span-1{% endif %}">
       <h2 class="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">Métadonnées</h2>
-      <dl class="space-y-3">
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Créé le</dt>
-          <dd class="text-gray-700 mt-0.5">{{ h.created_at.strftime('%d/%m/%Y à %H:%M') }}
-            {% if h.creator %} par <span class="font-medium">{{ h.creator.username }}</span>{% endif %}
-          </dd>
-        </div>
-        <div>
-          <dt class="text-xs text-gray-500 uppercase tracking-wide">Dernière modification</dt>
-          <dd class="text-gray-700 mt-0.5">{{ h.updated_at.strftime('%d/%m/%Y à %H:%M') }}
-            {% if h.updater %} par <span class="font-medium">{{ h.updater.username }}</span>{% endif %}
-          </dd>
-        </div>
+      <dl class="space-y-3 text-sm">
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Créé le</dt>
+          <dd class="text-gray-700 mt-0.5">{{ h.created_at.strftime('%d/%m/%Y à %H:%M') }}{% if h.creator %} par <strong>{{ h.creator.username }}</strong>{% endif %}</dd></div>
+        <div><dt class="text-xs text-gray-500 uppercase tracking-wide">Modifié le</dt>
+          <dd class="text-gray-700 mt-0.5">{{ h.updated_at.strftime('%d/%m/%Y à %H:%M') }}{% if h.updater %} par <strong>{{ h.updater.username }}</strong>{% endif %}</dd></div>
         <div>
           <a href="/habilitations/{{ h.id }}/history"
              class="inline-flex items-center gap-1 text-sm text-teal-600 hover:underline mt-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Voir l'historique des modifications
+            </svg>Voir l'historique
           </a>
         </div>
       </dl>

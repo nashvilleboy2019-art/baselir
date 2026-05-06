@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app import models
 
 
+# --- Auth helpers ---
+
 def require_login(request: Request, db: Session) -> models.User:
     user_id = request.session.get("user_id")
     if not user_id:
@@ -23,6 +25,23 @@ def require_responsable(request: Request, db: Session) -> models.User:
         raise HTTPException(status_code=403, detail="Accès réservé au responsable.")
     return user
 
+
+# --- App config ---
+
+def get_config(db: Session, key: str, default: str = "") -> str:
+    item = db.query(models.AppConfig).filter(models.AppConfig.key == key).first()
+    return item.value if item and item.value is not None else default
+
+
+def set_config(db: Session, key: str, value: str):
+    item = db.query(models.AppConfig).filter(models.AppConfig.key == key).first()
+    if item:
+        item.value = value
+    else:
+        db.add(models.AppConfig(key=key, value=value))
+
+
+# --- Activity / history ---
 
 def log_activity(db: Session, user: models.User, action: str,
                  resource: str = None, resource_id=None, details: str = None):
@@ -50,8 +69,8 @@ def log_history(db: Session, habilitation_id: int, action: str, user_id: int,
     ))
 
 
-def habilitation_to_dict(h: models.Habilitation) -> dict:
-    return {
+def habilitation_to_dict(h: models.Habilitation, custom_fields=None) -> dict:
+    d = {
         "nom_prenom": h.nom_prenom,
         "statut": h.statut.label if h.statut else None,
         "filiale": h.filiale.label if h.filiale else None,
@@ -63,7 +82,36 @@ def habilitation_to_dict(h: models.Habilitation) -> dict:
         "date_octroi": str(h.date_octroi) if h.date_octroi else None,
         "date_attestation": str(h.date_attestation) if h.date_attestation else None,
     }
+    if custom_fields:
+        for cf in custom_fields:
+            key = f"[{cf.custom_type.label}]"
+            d[key] = cf.custom_value.label if cf.custom_value else None
+    return d
 
+
+def get_custom_field_map(db: Session, habilitation_id: int) -> dict:
+    """Returns {type_id: value_id} for an habilitation."""
+    rows = (db.query(models.HabilitationCustomField)
+            .filter(models.HabilitationCustomField.habilitation_id == habilitation_id)
+            .all())
+    return {r.custom_type_id: r.custom_value_id for r in rows}
+
+
+def save_custom_fields(db: Session, habilitation_id: int, type_value_map: dict):
+    """type_value_map = {type_id: value_id or None}"""
+    (db.query(models.HabilitationCustomField)
+     .filter(models.HabilitationCustomField.habilitation_id == habilitation_id)
+     .delete())
+    for type_id, value_id in type_value_map.items():
+        if value_id:
+            db.add(models.HabilitationCustomField(
+                habilitation_id=habilitation_id,
+                custom_type_id=type_id,
+                custom_value_id=value_id,
+            ))
+
+
+# --- Flash ---
 
 def set_flash(request: Request, message: str, category: str = "success"):
     request.session["flash"] = {"message": message, "category": category}
@@ -71,11 +119,12 @@ def set_flash(request: Request, message: str, category: str = "success"):
 
 def get_flash(request: Request):
     if "flash" in request.session:
-        flash = request.session["flash"]
-        del request.session["flash"]
+        flash = request.session.pop("flash")
         return flash
     return None
 
+
+# --- Pagination ---
 
 def paginate(query, page: int, per_page: int = 50) -> dict:
     total = query.count()
@@ -93,9 +142,3 @@ def paginate(query, page: int, per_page: int = 50) -> dict:
         "start": (page - 1) * per_page + 1 if total > 0 else 0,
         "end": min(page * per_page, total),
     }
-
-
-def is_expired(d: date) -> bool:
-    if d is None:
-        return False
-    return d < date.today()

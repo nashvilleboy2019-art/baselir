@@ -2,37 +2,36 @@
 {% block title %}Administration — Référentiels{% endblock %}
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold text-gray-800 mb-2">Administration — Référentiels</h1>
-  <p class="text-sm text-gray-500 mb-6">Gérez les valeurs personnalisables utilisées dans les habilitations.</p>
+  <h1 class="text-2xl font-bold text-gray-800 mb-2">Référentiels</h1>
+  <p class="text-sm text-gray-500 mb-6">Gérez les valeurs des listes déroulantes et les champs personnalisés.</p>
 
   <!-- Tabs -->
-  <div id="tabs" x-data="{ tab: 'statuts' }">
   <div class="border-b border-gray-200 mb-6">
     <nav class="flex gap-1 overflow-x-auto" id="tab-nav">
       {% set tab_items = [
-        ('statuts', 'Statuts'),
-        ('filiales', 'Filiales'),
-        ('descriptions', 'Descriptions'),
-        ('services', 'Services'),
-        ('societes', 'Sociétés'),
-        ('roles', 'Rôles'),
-        ('domaines', 'Domaines'),
+        ('statuts','Statuts'),('filiales','Filiales'),('descriptions','Descriptions'),
+        ('services','Services'),('societes','Sociétés'),('roles','Rôles'),
+        ('domaines','Domaines'),('custom','Champs perso.'),
       ] %}
       {% for key, label in tab_items %}
       <button onclick="showTab('{{ key }}')" id="tab-btn-{{ key }}"
               class="tab-btn px-4 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap
                      {% if loop.first %}border-teal-600 text-teal-700{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
         {{ label }}
+        {% if key != 'custom' %}
         <span class="ml-1 text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">{{ data[key]|length }}</span>
+        {% else %}
+        <span class="ml-1 text-xs bg-teal-100 text-teal-600 px-1.5 py-0.5 rounded-full">{{ custom_types|length }}</span>
+        {% endif %}
       </button>
       {% endfor %}
     </nav>
   </div>
 
+  <!-- Onglets fixes -->
   {% for key, (model_cls, type_label) in ref_map.items() %}
   <div id="tab-{{ key }}" class="tab-panel {% if not loop.first %}hidden{% endif %}">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Liste -->
       <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm">
         <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
           <h2 class="font-semibold text-gray-700">{{ type_label }}s</h2>
@@ -53,15 +52,12 @@
             <tr class="hover:bg-gray-50 group">
               <td class="px-4 py-2 font-medium text-gray-700">{{ item.label }}</td>
               {% if key == 'statuts' %}
-              <td class="px-4 py-2">
-                <span class="badge-{{ item.color }} text-xs px-2 py-0.5 rounded-full">{{ item.color }}</span>
-              </td>
+              <td class="px-4 py-2"><span class="badge-{{ item.color }} text-xs px-2 py-0.5 rounded-full">{{ item.color }}</span></td>
               {% endif %}
               <td class="px-4 py-2 text-gray-400">{{ item.ordre }}</td>
               <td class="px-4 py-2">
                 <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                  <!-- Edit modal trigger -->
-                  <button onclick="openEdit('{{ key }}', {{ item.id }}, '{{ item.label|replace("'", "\\'") }}', {% if key == 'statuts' %}'{{ item.color }}'{% else %}''{% endif %}, {{ item.ordre }})"
+                  <button onclick="openEdit('{{ key }}',{{ item.id }},'{{ item.label|replace("'","\\'") }}','{% if key == "statuts" %}{{ item.color }}{% endif %}',{{ item.ordre }})"
                           class="text-teal-600 hover:underline text-xs">Modifier</button>
                   <form method="post" action="/admin/referentiels/{{ key }}/{{ item.id }}/delete"
                         onsubmit="return confirm('Supprimer « {{ item.label }} » ?')">
@@ -74,47 +70,116 @@
           </tbody>
         </table>
         {% else %}
-        <p class="px-4 py-8 text-center text-sm text-gray-400">Aucune valeur. Ajoutez-en une ci-contre.</p>
+        <p class="px-4 py-8 text-center text-sm text-gray-400">Aucune valeur.</p>
         {% endif %}
       </div>
 
-      <!-- Formulaire d'ajout -->
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-        <h3 class="font-semibold text-gray-700 mb-4">Ajouter un{{ 'e' if key in ('filiales','descriptions','societes') else '' }} {{ type_label|lower }}</h3>
+        <h3 class="font-semibold text-gray-700 mb-4">Ajouter</h3>
         <form method="post" action="/admin/referentiels/{{ key }}/add" class="space-y-3">
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Libellé</label>
-            <input type="text" name="label" required
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+            <input type="text" name="label" required class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
           </div>
           {% if key == 'statuts' %}
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Couleur</label>
             <select name="color" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
-              {% for c in statut_colors %}
-              <option value="{{ c }}">{{ c }}</option>
-              {% endfor %}
+              {% for c in statut_colors %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
             </select>
           </div>
           {% endif %}
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Ordre</label>
-            <input type="number" name="ordre" value="0" min="0"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+            <input type="number" name="ordre" value="0" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
           </div>
-          <button type="submit"
-                  class="w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">
-            Ajouter
-          </button>
+          <button type="submit" class="w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">Ajouter</button>
         </form>
       </div>
     </div>
   </div>
   {% endfor %}
-  </div><!-- end tabs -->
+
+  <!-- Onglet Champs personnalisés -->
+  <div id="tab-custom" class="tab-panel hidden" id="custom">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Ajouter un nouveau type -->
+      <div class="bg-white rounded-xl border border-teal-200 shadow-sm p-5">
+        <h3 class="font-semibold text-teal-700 mb-4">Nouveau champ personnalisé</h3>
+        <form method="post" action="/admin/custom-types/add" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Libellé affiché</label>
+            <input type="text" name="label" required placeholder="Ex: Région"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Nom technique (slug)</label>
+            <input type="text" name="name" required placeholder="Ex: region"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+            <p class="text-xs text-gray-400 mt-1">Minuscules, sans espaces ni accents.</p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Ordre</label>
+            <input type="number" name="ordre" value="0" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+          </div>
+          <button type="submit" class="w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">Créer le champ</button>
+        </form>
+      </div>
+
+      <div class="lg:col-span-2">
+        {% if custom_types %}
+        <div class="space-y-4">
+          {% for ct in custom_types %}
+          <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <span class="font-semibold text-gray-700">{{ ct.label }}</span>
+                <span class="text-xs text-gray-400 ml-2">slug: {{ ct.name }}</span>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="openEditCustomType({{ ct.id }},'{{ ct.label|replace("'","\\'") }}',{{ ct.ordre }})"
+                        class="text-teal-600 hover:underline text-xs">Modifier</button>
+                <form method="post" action="/admin/custom-types/{{ ct.id }}/delete"
+                      onsubmit="return confirm('Supprimer le champ « {{ ct.label }} » et toutes ses valeurs ?')">
+                  <button type="submit" class="text-red-500 hover:underline text-xs">Supprimer</button>
+                </form>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="flex flex-wrap gap-2 mb-3">
+                {% for v in ct.values %}
+                <div class="flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-sm">
+                  <span>{{ v.label }}</span>
+                  <form method="post" action="/admin/custom-types/{{ ct.id }}/values/{{ v.id }}/delete"
+                        onsubmit="return confirm('Supprimer « {{ v.label }} » ?')" class="inline">
+                    <button type="submit" class="text-gray-400 hover:text-red-500 ml-1 text-xs leading-none">✕</button>
+                  </form>
+                </div>
+                {% else %}
+                <p class="text-xs text-gray-400">Aucune valeur.</p>
+                {% endfor %}
+              </div>
+              <form method="post" action="/admin/custom-types/{{ ct.id }}/values/add"
+                    class="flex gap-2">
+                <input type="text" name="label" placeholder="Nouvelle valeur..."
+                       class="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <button type="submit" class="px-3 py-1.5 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700">+</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400">
+          Aucun champ personnalisé. Créez-en un à gauche.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Edit modal -->
+<!-- Modal édition référentiel fixe -->
 <div id="edit-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
   <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6">
     <h3 class="font-semibold text-gray-800 mb-4">Modifier</h3>
@@ -127,20 +192,43 @@
       <div id="edit-color-block" class="hidden">
         <label class="block text-xs font-medium text-gray-600 mb-1">Couleur</label>
         <select name="color" id="edit-color"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
-          {% for c in statut_colors %}
-          <option value="{{ c }}">{{ c }}</option>
-          {% endfor %}
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+          {% for c in statut_colors %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
         </select>
       </div>
       <div>
         <label class="block text-xs font-medium text-gray-600 mb-1">Ordre</label>
         <input type="number" name="ordre" id="edit-ordre" min="0"
-               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
       </div>
       <div class="flex gap-2 pt-2">
         <button type="submit" class="flex-1 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">Enregistrer</button>
-        <button type="button" onclick="closeEdit()" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">Annuler</button>
+        <button type="button" onclick="document.getElementById('edit-modal').classList.add('hidden')"
+                class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal édition champ perso -->
+<div id="edit-custom-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6">
+    <h3 class="font-semibold text-gray-800 mb-4">Modifier le champ</h3>
+    <form id="edit-custom-form" method="post" class="space-y-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Libellé</label>
+        <input type="text" name="label" id="edit-custom-label" required
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Ordre</label>
+        <input type="number" name="ordre" id="edit-custom-ordre" min="0"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">Enregistrer</button>
+        <button type="button" onclick="document.getElementById('edit-custom-modal').classList.add('hidden')"
+                class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm">Annuler</button>
       </div>
     </form>
   </div>
@@ -150,35 +238,32 @@
 function showTab(key) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
   document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.remove('border-teal-600', 'text-teal-700');
-    b.classList.add('border-transparent', 'text-gray-500');
+    b.classList.remove('border-teal-600','text-teal-700');
+    b.classList.add('border-transparent','text-gray-500');
   });
   document.getElementById('tab-' + key).classList.remove('hidden');
   const btn = document.getElementById('tab-btn-' + key);
-  btn.classList.remove('border-transparent', 'text-gray-500');
-  btn.classList.add('border-teal-600', 'text-teal-700');
+  btn.classList.remove('border-transparent','text-gray-500');
+  btn.classList.add('border-teal-600','text-teal-700');
 }
-
 function openEdit(type, id, label, color, ordre) {
   document.getElementById('edit-form').action = '/admin/referentiels/' + type + '/' + id + '/edit';
   document.getElementById('edit-label').value = label;
   document.getElementById('edit-ordre').value = ordre;
-  const colorBlock = document.getElementById('edit-color-block');
-  if (type === 'statuts') {
-    colorBlock.classList.remove('hidden');
-    document.getElementById('edit-color').value = color;
-  } else {
-    colorBlock.classList.add('hidden');
-  }
+  const cb = document.getElementById('edit-color-block');
+  if (type === 'statuts') { cb.classList.remove('hidden'); document.getElementById('edit-color').value = color; }
+  else cb.classList.add('hidden');
   document.getElementById('edit-modal').classList.remove('hidden');
 }
-
-function closeEdit() {
-  document.getElementById('edit-modal').classList.add('hidden');
+function openEditCustomType(id, label, ordre) {
+  document.getElementById('edit-custom-form').action = '/admin/custom-types/' + id + '/edit';
+  document.getElementById('edit-custom-label').value = label;
+  document.getElementById('edit-custom-ordre').value = ordre;
+  document.getElementById('edit-custom-modal').classList.remove('hidden');
 }
-
-document.getElementById('edit-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeEdit();
-});
+document.getElementById('edit-modal').addEventListener('click', e => { if(e.target===e.currentTarget) e.currentTarget.classList.add('hidden'); });
+document.getElementById('edit-custom-modal').addEventListener('click', e => { if(e.target===e.currentTarget) e.currentTarget.classList.add('hidden'); });
+// Auto-activate custom tab if anchor
+if (location.hash === '#custom') showTab('custom');
 </script>
 {% endblock %}

@@ -9,9 +9,9 @@ import os
 
 from app.database import get_db, engine
 from app import models, auth
-from app.routers import habilitations, admin, audit, users, activity
+from app.routers import habilitations, admin, audit, users, activity, import_hab
 from app.templates_config import templates
-from app.utils import get_flash, log_activity, require_login
+from app.utils import get_flash, log_activity, require_login, get_config
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -21,14 +21,19 @@ app.add_middleware(SessionMiddleware, secret_key="baselir-change-this-secret-key
 PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 static_dir = os.path.join(PARENT_DIR, "static")
+uploads_dir = os.path.join(PARENT_DIR, "uploads")
 os.makedirs(static_dir, exist_ok=True)
+os.makedirs(uploads_dir, exist_ok=True)
+
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 app.include_router(habilitations.router, prefix="/habilitations")
 app.include_router(admin.router, prefix="/admin")
 app.include_router(audit.router, prefix="/audit")
 app.include_router(users.router, prefix="/users")
 app.include_router(activity.router, prefix="/activity")
+app.include_router(import_hab.router, prefix="/import")
 
 
 @app.exception_handler(HTTPException)
@@ -64,51 +69,30 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     today = date.today()
 
     total = db.query(func.count(models.Habilitation.id)).scalar() or 0
-
     expired_count = (db.query(func.count(models.Habilitation.id))
-                     .filter(models.Habilitation.date_attestation < today)
-                     .scalar() or 0)
+                     .filter(models.Habilitation.date_attestation < today).scalar() or 0)
 
     by_domaine = (
         db.query(models.RefDomaine.label, func.count(models.Habilitation.id))
         .outerjoin(models.Habilitation, models.Habilitation.domaine_id == models.RefDomaine.id)
         .group_by(models.RefDomaine.label)
-        .order_by(func.count(models.Habilitation.id).desc())
-        .all()
+        .order_by(func.count(models.Habilitation.id).desc()).all()
     )
-
     by_statut = (
         db.query(models.RefStatut.label, models.RefStatut.color, func.count(models.Habilitation.id))
         .outerjoin(models.Habilitation, models.Habilitation.statut_id == models.RefStatut.id)
-        .group_by(models.RefStatut.label, models.RefStatut.color)
-        .all()
+        .group_by(models.RefStatut.label, models.RefStatut.color).all()
     )
-
-    recent = (
-        db.query(models.Habilitation)
-        .order_by(models.Habilitation.updated_at.desc())
-        .limit(10)
-        .all()
-    )
-
-    recent_activity = (
-        db.query(models.ActivityLog)
-        .order_by(models.ActivityLog.timestamp.desc())
-        .limit(10)
-        .all()
-    )
+    recent = (db.query(models.Habilitation)
+              .order_by(models.Habilitation.updated_at.desc()).limit(10).all())
+    recent_activity = (db.query(models.ActivityLog)
+                       .order_by(models.ActivityLog.timestamp.desc()).limit(10).all())
 
     return templates.TemplateResponse(request, "dashboard.html", {
-        "user": user,
-        "active": "dashboard",
-        "flash": get_flash(request),
-        "total": total,
-        "expired_count": expired_count,
-        "by_domaine": by_domaine,
-        "by_statut": by_statut,
-        "recent": recent,
-        "recent_activity": recent_activity,
-        "today": today,
+        "user": user, "active": "dashboard", "flash": get_flash(request),
+        "total": total, "expired_count": expired_count,
+        "by_domaine": by_domaine, "by_statut": by_statut,
+        "recent": recent, "recent_activity": recent_activity, "today": today,
     })
 
 
@@ -119,10 +103,13 @@ async def guide(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
+async def login_page(request: Request, db: Session = Depends(get_db)):
     if request.session.get("user_id"):
         return RedirectResponse("/", status_code=302)
-    return templates.TemplateResponse(request, "login.html", {"error": None})
+    logo = get_config(db, "logo_filename", "")
+    ldap_enabled = get_config(db, "ldap_enabled", "0") == "1"
+    return templates.TemplateResponse(request, "login.html",
+                                      {"error": None, "logo": logo, "ldap_enabled": ldap_enabled})
 
 
 @app.post("/login")
@@ -130,16 +117,18 @@ async def login(
     request: Request,
     username: str = Form(...),
     password: str = Form(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     user = auth.authenticate_user(db, username, password)
     if not user:
-        return templates.TemplateResponse(request, "login.html", {"error": "Identifiants incorrects"})
-
+        logo = get_config(db, "logo_filename", "")
+        ldap_enabled = get_config(db, "ldap_enabled", "0") == "1"
+        return templates.TemplateResponse(request, "login.html",
+                                          {"error": "Identifiants incorrects",
+                                           "logo": logo, "ldap_enabled": ldap_enabled})
     request.session["user_id"] = user.id
     request.session["username"] = user.username
     request.session["role"] = user.role
-
     log_activity(db, user, "Connexion")
     db.commit()
     return RedirectResponse("/", status_code=302)

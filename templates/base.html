@@ -33,45 +33,38 @@
 <body class="bg-gray-50 min-h-screen flex flex-col">
 
 {% if request.session.get("user_id") %}
-<!-- Navbar -->
 <nav class="bg-primary-700 text-white shadow-lg">
   <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
-    <div class="flex items-center gap-6">
-      <a href="/" class="font-bold text-lg tracking-wide flex items-center gap-2">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="flex items-center gap-1 text-sm overflow-x-auto">
+      <a href="/" class="font-bold text-base px-3 py-1 rounded hover:bg-primary-600 whitespace-nowrap flex items-center gap-1 mr-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
         </svg>
         BaseLIR
       </a>
-      <div class="flex items-center gap-1 text-sm">
-        <a href="/" class="px-3 py-1 rounded {% if active == 'dashboard' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Tableau de bord</a>
-        <a href="/habilitations/" class="px-3 py-1 rounded {% if active == 'habilitations' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Habilitations</a>
-        <a href="/audit/" class="px-3 py-1 rounded {% if active == 'audit' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %} flex items-center gap-1">
-          Audit
-        </a>
-        {% if request.session.get("role") == "responsable" %}
-        <a href="/admin/referentiels" class="px-3 py-1 rounded {% if active == 'admin' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Admin</a>
-        <a href="/users/" class="px-3 py-1 rounded {% if active == 'users' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Utilisateurs</a>
-        {% endif %}
-        <a href="/activity/" class="px-3 py-1 rounded {% if active == 'activity' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Journal</a>
-        <a href="/guide" class="px-3 py-1 rounded {% if active == 'guide' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Guide</a>
-      </div>
+      <a href="/habilitations/" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'habilitations' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Habilitations</a>
+      <a href="/audit/" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'audit' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Audit</a>
+      {% if request.session.get("role") == "responsable" %}
+      <a href="/import/" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'import' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Import</a>
+      <a href="/admin/referentiels" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'admin' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Référentiels</a>
+      <a href="/admin/settings" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'settings' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Paramètres</a>
+      <a href="/users/" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'users' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Utilisateurs</a>
+      {% endif %}
+      <a href="/activity/" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'activity' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Journal</a>
+      <a href="/guide" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'guide' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Guide</a>
     </div>
-    <div class="flex items-center gap-3 text-sm">
-      <span class="opacity-80">
+    <div class="flex items-center gap-3 text-sm shrink-0 ml-4">
+      <span class="opacity-80 whitespace-nowrap">
         {{ request.session.get("username") }}
-        <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-primary-500">
-          {{ request.session.get("role") }}
-        </span>
+        <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-primary-500">{{ request.session.get("role") }}</span>
       </span>
-      <a href="/logout" class="px-3 py-1 bg-primary-600 hover:bg-primary-500 rounded text-sm">Déconnexion</a>
+      <a href="/logout" class="px-3 py-1 bg-primary-600 hover:bg-primary-500 rounded text-sm whitespace-nowrap">Déconnexion</a>
     </div>
   </div>
 </nav>
 {% endif %}
 
-<!-- Flash messages -->
 {% if flash %}
 <div class="max-w-7xl mx-auto w-full px-4 mt-4">
   <div class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm
@@ -91,13 +84,10 @@
 </div>
 {% endif %}
 
-<main class="flex-1">
-  {% block content %}{% endblock %}
-</main>
+<main class="flex-1">{% block content %}{% endblock %}</main>
 
 <footer class="bg-white border-t border-gray-200 text-center text-xs text-gray-400 py-3 mt-8">
   BaseLIR &mdash; Gestion des Habilitations &copy; 2025
 </footer>
-
 </body>
 </html>

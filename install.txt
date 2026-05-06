@@ -7,11 +7,12 @@ PRÉREQUIS
 ---------
 - Python 3.10 ou supérieur
 - pip
+  ou Docker + Docker Compose
 
-INSTALLATION
-------------
+INSTALLATION (Python)
+---------------------
 
-1. Cloner ou copier le projet dans un répertoire :
+1. Cloner ou copier le projet :
    cd C:\chemin\vers\BaseLIR
 
 2. Créer et activer un environnement virtuel :
@@ -27,45 +28,93 @@ INSTALLATION
 3. Installer les dépendances :
    pip install -r requirements.txt
 
-DÉMARRAGE
----------
-
+4. Lancer :
    python run.py
+   → http://localhost:8001
 
-   Puis ouvrir le navigateur à l'adresse :
-   http://localhost:8001
+INSTALLATION (Docker)
+---------------------
+
+   docker compose up --build -d
+   → http://localhost:8001
+
+   La base de données et les uploads sont persistés dans
+   les dossiers data/ et uploads/ du projet.
 
 COMPTES PAR DÉFAUT
 ------------------
 
-   Responsable : admin / admin123
-   Auditeur    : auditeur / audit123
+   Responsable : admin / noukiebogosse2026
+   Auditeur    : auditeur / noukiebogosse2026
 
-   ⚠  Changez ces mots de passe dès la première connexion
-      via la page Utilisateurs > Modifier.
+   ⚠  Changez ces mots de passe après la première connexion
+      via Utilisateurs > Modifier.
 
 BASE DE DONNÉES
 ---------------
 
-   La base SQLite est créée automatiquement au démarrage
-   dans le dossier data/baselir.db
+   SQLite créé automatiquement dans data/baselir.db
+   Aucune configuration requise.
 
-   Aucune configuration supplémentaire n'est requise.
+FONCTIONNALITÉS (RESPONSABLE)
+------------------------------
+
+   - Habilitations : créer, modifier, supprimer, historique
+   - Import CSV/Excel : menu Import (colonnes auto-détectées)
+   - Référentiels : gérer les listes déroulantes + champs
+     personnalisés (onglet "Champs perso.")
+   - Paramètres :
+     * Logo société → affiché sur la page de connexion
+     * Active Directory / LDAP (SSO)
+   - Utilisateurs : créer, modifier, supprimer
+
+FONCTIONNALITÉS (AUDITEUR)
+---------------------------
+
+   - Consultation des habilitations
+   - Page Audit (écarts attestations expirées)
+   - Journal d'activité
+
+IMPORT CSV / EXCEL
+------------------
+
+   Format (en-tête obligatoire) :
+   Nom et Prénom | Statut | Filiale du Groupe | Description
+   Service | Société | Rôle | Domaine
+   Date d'octroi | Date des attestations
+
+   - Colonnes détectées automatiquement (ordre libre)
+   - Valeurs de référentiels créées si absentes
+   - Dates : JJ/MM/AAAA, AAAA-MM-JJ, JJ-MM-AAAA
+   - Téléchargez le modèle : /import/template
+
+ACTIVE DIRECTORY / LDAP
+------------------------
+
+   Dans Paramètres > Active Directory :
+   1. Cocher "Activer la connexion AD"
+   2. Renseigner serveur, port, domaine, base DN
+   3. Optionnel : activer TLS (port 636)
+
+   Les utilisateurs AD inconnus sont créés avec le rôle
+   Auditeur. Le responsable peut changer leur rôle.
+   En cas d'échec AD, la connexion locale reste disponible.
+
+CHAMPS PERSONNALISÉS
+--------------------
+
+   Dans Référentiels > onglet "Champs perso." :
+   - Créer un nouveau type (ex: "Région")
+   - Ajouter ses valeurs (ex: "Nord", "Sud"...)
+   - Le champ apparaît dans tous les formulaires
+     d'habilitation sans modifier la base de données.
 
 SÉCURITÉ (PRODUCTION)
 ---------------------
 
-   Dans app/main.py, remplacer la clé de session :
+   Dans app/main.py :
      secret_key="baselir-change-this-secret-key-in-production"
-   par une chaîne aléatoire longue et secrète.
-
-   Exemple de génération :
+   → remplacer par :
      python -c "import secrets; print(secrets.token_hex(32))"
-
-PORTS
------
-
-   Le port par défaut est 8001.
-   Pour le modifier : éditer run.py (paramètre port=).
 
 ============================================================

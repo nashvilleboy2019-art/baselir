@@ -3,7 +3,8 @@
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 py-6">
   <div class="flex items-center gap-3 mb-6">
-    <a href="/habilitations/" class="text-gray-400 hover:text-gray-600">
+    <a href="{% if target %}/habilitations/{{ target.id }}{% else %}/habilitations/{% endif %}"
+       class="text-gray-400 hover:text-gray-600">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
       </svg>
@@ -14,6 +15,7 @@
   </div>
 
   <form method="post" class="space-y-6">
+    <!-- Identité -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
       <h2 class="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">Identité</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -24,7 +26,6 @@
                  class="w-full px-3 py-2 border {% if errors.nom_prenom %}border-red-400{% else %}border-gray-300{% endif %} rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
           {% if errors.nom_prenom %}<p class="text-red-500 text-xs mt-1">{{ errors.nom_prenom }}</p>{% endif %}
         </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
           <select name="statut_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
@@ -34,7 +35,6 @@
             {% endfor %}
           </select>
         </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Filiale du Groupe</label>
           <select name="filiale_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
@@ -47,6 +47,7 @@
       </div>
     </div>
 
+    <!-- Organisation -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
       <h2 class="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">Organisation</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -59,7 +60,6 @@
             {% endfor %}
           </select>
         </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Service</label>
           <select name="service_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
@@ -69,7 +69,6 @@
             {% endfor %}
           </select>
         </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <select name="description_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
@@ -82,6 +81,7 @@
       </div>
     </div>
 
+    <!-- Habilitation -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
       <h2 class="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">Habilitation</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -94,7 +94,6 @@
             {% endfor %}
           </select>
         </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Domaine</label>
           <select name="domaine_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
@@ -104,14 +103,12 @@
             {% endfor %}
           </select>
         </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Date d'octroi</label>
           <input type="date" name="date_octroi"
                  value="{{ target.date_octroi.isoformat() if target and target.date_octroi else '' }}"
                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
         </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Date des attestations</label>
           <input type="date" name="date_attestation"
@@ -121,6 +118,30 @@
       </div>
     </div>
 
+    <!-- Champs personnalisés -->
+    {% if custom_types %}
+    <div class="bg-white rounded-xl border border-teal-200 shadow-sm p-6">
+      <h2 class="font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+        Champs personnalisés
+        <span class="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">{{ custom_types|length }}</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for ct in custom_types %}
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ ct.label }}</label>
+          <select name="custom_{{ ct.id }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+            <option value="">— Sélectionner —</option>
+            {% for v in ct.values %}
+            <option value="{{ v.id }}" {% if custom_field_map.get(ct.id) == v.id %}selected{% endif %}>{{ v.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Note -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
       <label class="block text-sm font-medium text-gray-700 mb-1">Note de modification (optionnel)</label>
       <textarea name="note" rows="2" placeholder="Motif de la modification..."
@@ -128,14 +149,11 @@
     </div>
 
     <div class="flex gap-3">
-      <button type="submit"
-              class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium text-sm">
+      <button type="submit" class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium text-sm">
         {% if target %}Enregistrer les modifications{% else %}Créer l'habilitation{% endif %}
       </button>
       <a href="{% if target %}/habilitations/{{ target.id }}{% else %}/habilitations/{% endif %}"
-         class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
-        Annuler
-      </a>
+         class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">Annuler</a>
     </div>
   </form>
 </div>
