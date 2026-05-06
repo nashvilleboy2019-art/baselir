@@ -1,0 +1,71 @@
+============================================================
+  BaseLIR — Installation & Démarrage
+  Gestion des Habilitations Individus-Rôles
+============================================================
+
+PRÉREQUIS
+---------
+- Python 3.10 ou supérieur
+- pip
+
+INSTALLATION
+------------
+
+1. Cloner ou copier le projet dans un répertoire :
+   cd C:\chemin\vers\BaseLIR
+
+2. Créer et activer un environnement virtuel :
+
+   Windows :
+     python -m venv venv
+     venv\Scripts\activate
+
+   Linux / macOS :
+     python3 -m venv venv
+     source venv/bin/activate
+
+3. Installer les dépendances :
+   pip install -r requirements.txt
+
+DÉMARRAGE
+---------
+
+   python run.py
+
+   Puis ouvrir le navigateur à l'adresse :
+   http://localhost:8001
+
+COMPTES PAR DÉFAUT
+------------------
+
+   Responsable : admin / admin123
+   Auditeur    : auditeur / audit123
+
+   ⚠  Changez ces mots de passe dès la première connexion
+      via la page Utilisateurs > Modifier.
+
+BASE DE DONNÉES
+---------------
+
+   La base SQLite est créée automatiquement au démarrage
+   dans le dossier data/baselir.db
+
+   Aucune configuration supplémentaire n'est requise.
+
+SÉCURITÉ (PRODUCTION)
+---------------------
+
+   Dans app/main.py, remplacer la clé de session :
+     secret_key="baselir-change-this-secret-key-in-production"
+   par une chaîne aléatoire longue et secrète.
+
+   Exemple de génération :
+     python -c "import secrets; print(secrets.token_hex(32))"
+
+PORTS
+-----
+
+   Le port par défaut est 8001.
+   Pour le modifier : éditer run.py (paramètre port=).
+
+============================================================

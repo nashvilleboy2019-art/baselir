@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Habilitations{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Habilitations</h1>
+    {% if request.session.get("role") == "responsable" %}
+    <a href="/habilitations/new"
+       class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Nouvelle habilitation
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Filtres -->
+  <form method="get" action="/habilitations/" class="bg-white rounded-xl border border-gray-200 p-4 mb-4 shadow-sm">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+      <div class="col-span-2">
+        <input type="text" name="q" value="{{ q }}" placeholder="Rechercher un nom..."
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+      </div>
+      <select name="statut_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+        <option value="">Tous statuts</option>
+        {% for s in statuts %}
+        <option value="{{ s.id }}" {% if statut_id == s.id|string %}selected{% endif %}>{{ s.label }}</option>
+        {% endfor %}
+      </select>
+      <select name="domaine_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+        <option value="">Tous domaines</option>
+        {% for d in domaines %}
+        <option value="{{ d.id }}" {% if domaine_id == d.id|string %}selected{% endif %}>{{ d.label }}</option>
+        {% endfor %}
+      </select>
+      <select name="service_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+        <option value="">Tous services</option>
+        {% for s in services %}
+        <option value="{{ s.id }}" {% if service_id == s.id|string %}selected{% endif %}>{{ s.label }}</option>
+        {% endfor %}
+      </select>
+      <select name="role_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+        <option value="">Tous rôles</option>
+        {% for r in roles %}
+        <option value="{{ r.id }}" {% if role_id == r.id|string %}selected{% endif %}>{{ r.label }}</option>
+        {% endfor %}
+      </select>
+      <div class="flex gap-2">
+        <button type="submit" class="flex-1 px-3 py-2 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700">Filtrer</button>
+        <a href="/habilitations/" class="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200">✕</a>
+      </div>
+    </div>
+    <div class="mt-2 flex items-center gap-3">
+      <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+        <input type="checkbox" name="ecarts_only" value="1" {% if ecarts_only %}checked{% endif %}
+               class="rounded text-red-500">
+        <span class="text-red-600 font-medium">Écarts uniquement (attestations expirées)</span>
+      </label>
+    </div>
+  </form>
+
+  <!-- Résultats -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+      <p class="text-sm text-gray-600">
+        <span class="font-semibold">{{ paged.total }}</span> habilitation{% if paged.total > 1 %}s{% endif %}
+        {% if paged.total > 0 %} — {{ paged.start }} à {{ paged.end }}{% endif %}
+      </p>
+    </div>
+
+    {% if paged.results %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+          <tr>
+            <th class="px-4 py-3 text-left">Nom / Prénom</th>
+            <th class="px-4 py-3 text-left">Statut</th>
+            <th class="px-4 py-3 text-left">Société</th>
+            <th class="px-4 py-3 text-left">Service</th>
+            <th class="px-4 py-3 text-left">Rôle</th>
+            <th class="px-4 py-3 text-left">Domaine</th>
+            <th class="px-4 py-3 text-left">Date octroi</th>
+            <th class="px-4 py-3 text-left">Date attestation</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for h in paged.results %}
+          {% set expired = h.date_attestation and h.date_attestation < today %}
+          <tr class="hover:bg-gray-50 {% if expired %}bg-red-50{% endif %}">
+            <td class="px-4 py-3">
+              <a href="/habilitations/{{ h.id }}" class="font-medium text-teal-700 hover:underline">{{ h.nom_prenom }}</a>
+              {% if h.filiale %}<div class="text-xs text-gray-400">{{ h.filiale.label }}</div>{% endif %}
+            </td>
+            <td class="px-4 py-3">
+              {% if h.statut %}
+              <span class="badge-{{ h.statut.color }} text-xs px-2 py-0.5 rounded-full font-medium">{{ h.statut.label }}</span>
+              {% else %}<span class="text-gray-300">—</span>{% endif %}
+            </td>
+            <td class="px-4 py-3 text-gray-600">{{ h.societe.label if h.societe else '—' }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ h.service.label if h.service else '—' }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ h.role.label if h.role else '—' }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ h.domaine.label if h.domaine else '—' }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ h.date_octroi.strftime('%d/%m/%Y') if h.date_octroi else '—' }}</td>
+            <td class="px-4 py-3 {% if expired %}text-red-600 font-semibold{% else %}text-gray-600{% endif %}">
+              {{ h.date_attestation.strftime('%d/%m/%Y') if h.date_attestation else '—' }}
+              {% if expired %}<span class="ml-1 text-xs">⚠</span>{% endif %}
+            </td>
+            <td class="px-4 py-3">
+              <a href="/habilitations/{{ h.id }}" class="text-teal-600 hover:underline text-xs">Détail</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if paged.pages > 1 %}
+    <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-between text-sm">
+      <span class="text-gray-500">Page {{ paged.page }} / {{ paged.pages }}</span>
+      <div class="flex gap-1">
+        {% if paged.has_prev %}
+        <a href="?page={{ paged.page - 1 }}&q={{ q }}&statut_id={{ statut_id }}&domaine_id={{ domaine_id }}&service_id={{ service_id }}&role_id={{ role_id }}"
+           class="px-3 py-1 border rounded hover:bg-gray-50">Préc.</a>
+        {% endif %}
+        {% if paged.has_next %}
+        <a href="?page={{ paged.page + 1 }}&q={{ q }}&statut_id={{ statut_id }}&domaine_id={{ domaine_id }}&service_id={{ service_id }}&role_id={{ role_id }}"
+           class="px-3 py-1 border rounded hover:bg-gray-50">Suiv.</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="px-4 py-12 text-center text-gray-400">
+      <svg class="w-10 h-10 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+      </svg>
+      Aucune habilitation trouvée
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

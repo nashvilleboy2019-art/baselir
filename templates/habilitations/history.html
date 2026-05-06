@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Historique — {{ h.nom_prenom }}{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-6">
+  <div class="flex items-center gap-3 mb-6">
+    <a href="/habilitations/{{ h.id }}" class="text-gray-400 hover:text-gray-600">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+    </a>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Historique</h1>
+      <p class="text-sm text-gray-500">{{ h.nom_prenom }}</p>
+    </div>
+  </div>
+
+  {% if entries %}
+  <div class="space-y-4">
+    {% for item in entries %}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-semibold
+            {% if item.entry.action == 'Création' %}text-green-600
+            {% elif item.entry.action == 'Suppression' %}text-red-600
+            {% else %}text-teal-600{% endif %}">
+            {{ item.entry.action }}
+          </span>
+          <span class="text-sm text-gray-500">
+            par <strong>{{ item.entry.user.username if item.entry.user else '?' }}</strong>
+          </span>
+          {% if item.entry.note %}
+          <span class="text-sm text-gray-400 italic">— {{ item.entry.note }}</span>
+          {% endif %}
+        </div>
+        <span class="text-xs text-gray-400">{{ item.entry.changed_at.strftime('%d/%m/%Y à %H:%M') }}</span>
+      </div>
+
+      {% if item.old or item.new %}
+      <div class="grid grid-cols-2 gap-4 text-xs">
+        {% if item.old %}
+        <div class="bg-red-50 rounded-lg p-3">
+          <p class="font-semibold text-red-700 mb-2">Avant</p>
+          {% for k, v in item.old.items() %}
+          {% if item.new and item.new.get(k) != v %}
+          <div class="flex gap-2 text-red-600">
+            <span class="font-medium w-32 shrink-0">{{ k }}</span>
+            <span>{{ v or '—' }}</span>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if item.new %}
+        <div class="bg-green-50 rounded-lg p-3">
+          <p class="font-semibold text-green-700 mb-2">Après</p>
+          {% for k, v in item.new.items() %}
+          {% if item.old and item.old.get(k) != v %}
+          <div class="flex gap-2 text-green-700">
+            <span class="font-medium w-32 shrink-0">{{ k }}</span>
+            <span>{{ v or '—' }}</span>
+          </div>
+          {% elif not item.old %}
+          <div class="flex gap-2 text-gray-600">
+            <span class="font-medium w-32 shrink-0">{{ k }}</span>
+            <span>{{ v or '—' }}</span>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400">
+    Aucun historique disponible.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

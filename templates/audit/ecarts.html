@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Audit — Écarts{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <div class="flex items-center justify-between mb-2">
+    <h1 class="text-2xl font-bold text-gray-800">Audit — Écarts d'attestations</h1>
+    <span class="text-sm text-gray-500">Référence : {{ today.strftime('%d/%m/%Y') }}</span>
+  </div>
+  <p class="text-sm text-gray-500 mb-6">
+    Habilitations dont la date des attestations est dépassée à ce jour.
+  </p>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+      <p class="text-sm text-red-600 font-medium">Écarts détectés</p>
+      <p class="text-3xl font-bold text-red-700 mt-1">{{ total_ecarts }}</p>
+    </div>
+    <div class="bg-orange-50 border border-orange-200 rounded-xl p-4">
+      <p class="text-sm text-orange-600 font-medium">Sans date attestation</p>
+      <p class="text-3xl font-bold text-orange-700 mt-1">{{ sans_date }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-4">
+      <p class="text-sm text-gray-500 font-medium mb-2">Par domaine</p>
+      {% for label, count in by_domaine %}
+      <div class="flex justify-between text-sm">
+        <span class="text-gray-600">{{ label }}</span>
+        <span class="font-semibold text-red-600">{{ count }}</span>
+      </div>
+      {% else %}
+      <p class="text-sm text-gray-400">Aucun écart</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <form method="get" action="/audit/" class="bg-white rounded-xl border border-gray-200 p-4 mb-4 shadow-sm">
+    <div class="flex flex-wrap gap-3">
+      <select name="domaine_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-400 focus:outline-none">
+        <option value="">Tous domaines</option>
+        {% for d in domaines %}
+        <option value="{{ d.id }}" {% if domaine_id == d.id|string %}selected{% endif %}>{{ d.label }}</option>
+        {% endfor %}
+      </select>
+      <select name="service_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-400 focus:outline-none">
+        <option value="">Tous services</option>
+        {% for s in services %}
+        <option value="{{ s.id }}" {% if service_id == s.id|string %}selected{% endif %}>{{ s.label }}</option>
+        {% endfor %}
+      </select>
+      <select name="societe_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-400 focus:outline-none">
+        <option value="">Toutes sociétés</option>
+        {% for s in societes %}
+        <option value="{{ s.id }}" {% if societe_id == s.id|string %}selected{% endif %}>{{ s.label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">Filtrer</button>
+      <a href="/audit/" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200">Réinitialiser</a>
+    </div>
+  </form>
+
+  <!-- Tableau des écarts -->
+  <div class="bg-white rounded-xl border border-red-200 shadow-sm overflow-hidden">
+    <div class="px-4 py-3 bg-red-50 border-b border-red-200">
+      <p class="text-sm font-semibold text-red-700">
+        {{ total_ecarts }} habilitation{% if total_ecarts > 1 %}s{% endif %} en écart
+      </p>
+    </div>
+
+    {% if ecarts_list %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+          <tr>
+            <th class="px-4 py-3 text-left">Nom / Prénom</th>
+            <th class="px-4 py-3 text-left">Statut</th>
+            <th class="px-4 py-3 text-left">Société</th>
+            <th class="px-4 py-3 text-left">Service</th>
+            <th class="px-4 py-3 text-left">Rôle</th>
+            <th class="px-4 py-3 text-left">Domaine</th>
+            <th class="px-4 py-3 text-left">Date attestation</th>
+            <th class="px-4 py-3 text-left">Retard</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for h in ecarts_list %}
+          {% set delta = (today - h.date_attestation).days %}
+          <tr class="hover:bg-red-50">
+            <td class="px-4 py-3">
+              <a href="/habilitations/{{ h.id }}" class="font-medium text-teal-700 hover:underline">{{ h.nom_prenom }}</a>
+            </td>
+            <td class="px-4 py-3">
+              {% if h.statut %}
+              <span class="badge-{{ h.statut.color }} text-xs px-2 py-0.5 rounded-full">{{ h.statut.label }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="px-4 py-3 text-gray-600">{{ h.societe.label if h.societe else '—' }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ h.service.label if h.service else '—' }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ h.role.label if h.role else '—' }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ h.domaine.label if h.domaine else '—' }}</td>
+            <td class="px-4 py-3 text-red-600 font-semibold">{{ h.date_attestation.strftime('%d/%m/%Y') }}</td>
+            <td class="px-4 py-3">
+              <span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                {{ delta }} j.
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              {% if request.session.get("role") == "responsable" %}
+              <a href="/habilitations/{{ h.id }}/edit"
+                 class="text-teal-600 hover:underline text-xs">Régulariser</a>
+              {% else %}
+              <a href="/habilitations/{{ h.id }}" class="text-teal-600 hover:underline text-xs">Voir</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="px-4 py-12 text-center">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <p class="font-semibold text-green-700">Aucun écart détecté</p>
+      <p class="text-sm text-gray-400 mt-1">Toutes les attestations sont à jour.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

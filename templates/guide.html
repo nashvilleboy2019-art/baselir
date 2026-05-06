@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Guide d'utilisation{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-gray-800 mb-2">Guide d'utilisation</h1>
+  <p class="text-gray-500 mb-8">BaseLIR — Base de Liaisons Individus-Rôles</p>
+
+  <div class="space-y-6">
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-teal-700 mb-3">Présentation</h2>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        <strong>BaseLIR</strong> permet de gérer les habilitations des individus au sein de l'organisation.
+        Chaque habilitation établit un lien entre une personne, son rôle et son domaine d'intervention.
+        L'application remplace un fichier Excel et offre un suivi des modifications, un contrôle
+        des attestations et une gestion des accès par rôle.
+      </p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-teal-700 mb-3">Rôles applicatifs</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="bg-teal-50 rounded-lg p-4">
+          <p class="font-semibold text-teal-800 mb-2">Responsable</p>
+          <ul class="space-y-1 text-teal-700">
+            <li>✓ Créer, modifier, supprimer des habilitations</li>
+            <li>✓ Gérer les référentiels (Admin)</li>
+            <li>✓ Gérer les comptes utilisateurs</li>
+            <li>✓ Accès à toutes les pages</li>
+          </ul>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="font-semibold text-gray-700 mb-2">Auditeur</p>
+          <ul class="space-y-1 text-gray-600">
+            <li>✓ Consulter toutes les habilitations</li>
+            <li>✓ Voir les écarts (page Audit)</li>
+            <li>✓ Consulter le journal d'activité</li>
+            <li>✗ Pas de modification ni de gestion admin</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-teal-700 mb-3">Champs d'une habilitation</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <span class="font-medium text-gray-700 w-36 shrink-0">Nom et Prénom</span>
+          <span class="text-gray-500">Identité de la personne habilitée</span>
+        </div>
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <span class="font-medium text-gray-700 w-36 shrink-0">Statut</span>
+          <span class="text-gray-500">État de l'habilitation (Actif, Suspendu…)</span>
+        </div>
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <span class="font-medium text-gray-700 w-36 shrink-0">Filiale</span>
+          <span class="text-gray-500">Filiale du groupe à laquelle appartient la personne</span>
+        </div>
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <span class="font-medium text-gray-700 w-36 shrink-0">Description</span>
+          <span class="text-gray-500">Nature de la mission ou du profil</span>
+        </div>
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <span class="font-medium text-gray-700 w-36 shrink-0">Service</span>
+          <span class="text-gray-500">Service ou département d'appartenance</span>
+        </div>
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <span class="font-medium text-gray-700 w-36 shrink-0">Société</span>
+          <span class="text-gray-500">Entité juridique de rattachement</span>
+        </div>
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <span class="font-medium text-gray-700 w-36 shrink-0">Rôle</span>
+          <span class="text-gray-500">Rôle ou niveau d'accès accordé</span>
+        </div>
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <span class="font-medium text-gray-700 w-36 shrink-0">Domaine</span>
+          <span class="text-gray-500">Périmètre fonctionnel de l'habilitation</span>
+        </div>
+        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
+          <span class="font-medium text-gray-700 w-36 shrink-0">Date d'octroi</span>
+          <span class="text-gray-500">Date à laquelle l'habilitation a été accordée</span>
+        </div>
+        <div class="flex gap-3 p-3 bg-red-50 rounded-lg border border-red-100">
+          <span class="font-medium text-red-700 w-36 shrink-0">Date attestations</span>
+          <span class="text-red-600">Date limite de validité — génère un écart si dépassée</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-teal-700 mb-3">Page Audit — Écarts</h2>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        La page <strong>Audit</strong> affiche toutes les habilitations dont la date des attestations est antérieure
+        à la date du jour. Ces enregistrements constituent des <em>écarts</em> qui doivent être régularisés
+        par le responsable (mise à jour de la date, révocation ou suspension de l'habilitation).
+        Les auditeurs peuvent consulter et filtrer cette liste ; seul le responsable peut effectuer les corrections.
+      </p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-teal-700 mb-3">Référentiels (Admin)</h2>
+      <p class="text-sm text-gray-600 leading-relaxed mb-3">
+        Les référentiels définissent les valeurs disponibles dans les listes déroulantes des formulaires.
+        La page <strong>Administration → Référentiels</strong> permet au responsable de gérer ces valeurs
+        par onglet : Statuts, Filiales, Descriptions, Services, Sociétés, Rôles, Domaines.
+      </p>
+      <p class="text-sm text-gray-600">
+        Les <strong>statuts</strong> disposent d'une couleur associée pour une identification visuelle rapide.
+        Pour chaque référentiel, un ordre d'affichage peut être défini.
+      </p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-teal-700 mb-3">Versioning & Traçabilité</h2>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        Chaque création et modification d'habilitation est enregistrée dans un historique.
+        L'historique complet (avant / après) est accessible depuis la fiche de chaque habilitation.
+        Toutes les actions (connexion, modification, suppression…) sont également tracées dans le
+        <strong>Journal d'activité</strong>.
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}Administration — Référentiels{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-gray-800 mb-2">Administration — Référentiels</h1>
+  <p class="text-sm text-gray-500 mb-6">Gérez les valeurs personnalisables utilisées dans les habilitations.</p>
+
+  <!-- Tabs -->
+  <div id="tabs" x-data="{ tab: 'statuts' }">
+  <div class="border-b border-gray-200 mb-6">
+    <nav class="flex gap-1 overflow-x-auto" id="tab-nav">
+      {% set tab_items = [
+        ('statuts', 'Statuts'),
+        ('filiales', 'Filiales'),
+        ('descriptions', 'Descriptions'),
+        ('services', 'Services'),
+        ('societes', 'Sociétés'),
+        ('roles', 'Rôles'),
+        ('domaines', 'Domaines'),
+      ] %}
+      {% for key, label in tab_items %}
+      <button onclick="showTab('{{ key }}')" id="tab-btn-{{ key }}"
+              class="tab-btn px-4 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap
+                     {% if loop.first %}border-teal-600 text-teal-700{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+        {{ label }}
+        <span class="ml-1 text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">{{ data[key]|length }}</span>
+      </button>
+      {% endfor %}
+    </nav>
+  </div>
+
+  {% for key, (model_cls, type_label) in ref_map.items() %}
+  <div id="tab-{{ key }}" class="tab-panel {% if not loop.first %}hidden{% endif %}">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Liste -->
+      <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <h2 class="font-semibold text-gray-700">{{ type_label }}s</h2>
+          <span class="text-xs text-gray-400">{{ data[key]|length }} entrée{% if data[key]|length > 1 %}s{% endif %}</span>
+        </div>
+        {% if data[key] %}
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 text-xs text-gray-500">
+            <tr>
+              <th class="px-4 py-2 text-left">Libellé</th>
+              {% if key == 'statuts' %}<th class="px-4 py-2 text-left">Couleur</th>{% endif %}
+              <th class="px-4 py-2 text-left">Ordre</th>
+              <th class="px-4 py-2"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            {% for item in data[key] %}
+            <tr class="hover:bg-gray-50 group">
+              <td class="px-4 py-2 font-medium text-gray-700">{{ item.label }}</td>
+              {% if key == 'statuts' %}
+              <td class="px-4 py-2">
+                <span class="badge-{{ item.color }} text-xs px-2 py-0.5 rounded-full">{{ item.color }}</span>
+              </td>
+              {% endif %}
+              <td class="px-4 py-2 text-gray-400">{{ item.ordre }}</td>
+              <td class="px-4 py-2">
+                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                  <!-- Edit modal trigger -->
+                  <button onclick="openEdit('{{ key }}', {{ item.id }}, '{{ item.label|replace("'", "\\'") }}', {% if key == 'statuts' %}'{{ item.color }}'{% else %}''{% endif %}, {{ item.ordre }})"
+                          class="text-teal-600 hover:underline text-xs">Modifier</button>
+                  <form method="post" action="/admin/referentiels/{{ key }}/{{ item.id }}/delete"
+                        onsubmit="return confirm('Supprimer « {{ item.label }} » ?')">
+                    <button type="submit" class="text-red-500 hover:underline text-xs">Supprimer</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="px-4 py-8 text-center text-sm text-gray-400">Aucune valeur. Ajoutez-en une ci-contre.</p>
+        {% endif %}
+      </div>
+
+      <!-- Formulaire d'ajout -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <h3 class="font-semibold text-gray-700 mb-4">Ajouter un{{ 'e' if key in ('filiales','descriptions','societes') else '' }} {{ type_label|lower }}</h3>
+        <form method="post" action="/admin/referentiels/{{ key }}/add" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Libellé</label>
+            <input type="text" name="label" required
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+          </div>
+          {% if key == 'statuts' %}
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Couleur</label>
+            <select name="color" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+              {% for c in statut_colors %}
+              <option value="{{ c }}">{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Ordre</label>
+            <input type="number" name="ordre" value="0" min="0"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+          </div>
+          <button type="submit"
+                  class="w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">
+            Ajouter
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  </div><!-- end tabs -->
+</div>
+
+<!-- Edit modal -->
+<div id="edit-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6">
+    <h3 class="font-semibold text-gray-800 mb-4">Modifier</h3>
+    <form id="edit-form" method="post" class="space-y-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Libellé</label>
+        <input type="text" name="label" id="edit-label" required
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+      </div>
+      <div id="edit-color-block" class="hidden">
+        <label class="block text-xs font-medium text-gray-600 mb-1">Couleur</label>
+        <select name="color" id="edit-color"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+          {% for c in statut_colors %}
+          <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Ordre</label>
+        <input type="number" name="ordre" id="edit-ordre" min="0"
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="flex-1 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">Enregistrer</button>
+        <button type="button" onclick="closeEdit()" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function showTab(key) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('border-teal-600', 'text-teal-700');
+    b.classList.add('border-transparent', 'text-gray-500');
+  });
+  document.getElementById('tab-' + key).classList.remove('hidden');
+  const btn = document.getElementById('tab-btn-' + key);
+  btn.classList.remove('border-transparent', 'text-gray-500');
+  btn.classList.add('border-teal-600', 'text-teal-700');
+}
+
+function openEdit(type, id, label, color, ordre) {
+  document.getElementById('edit-form').action = '/admin/referentiels/' + type + '/' + id + '/edit';
+  document.getElementById('edit-label').value = label;
+  document.getElementById('edit-ordre').value = ordre;
+  const colorBlock = document.getElementById('edit-color-block');
+  if (type === 'statuts') {
+    colorBlock.classList.remove('hidden');
+    document.getElementById('edit-color').value = color;
+  } else {
+    colorBlock.classList.add('hidden');
+  }
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+
+function closeEdit() {
+  document.getElementById('edit-modal').classList.add('hidden');
+}
+
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEdit();
+});
+</script>
+{% endblock %}

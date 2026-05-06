@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Utilisateurs{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Gestion des utilisateurs</h1>
+    <a href="/users/new"
+       class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Nouvel utilisateur
+    </a>
+  </div>
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+        <tr>
+          <th class="px-4 py-3 text-left">Identifiant</th>
+          <th class="px-4 py-3 text-left">Rôle</th>
+          <th class="px-4 py-3 text-left">Créé le</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for u in users_list %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 font-medium text-gray-800">
+            {{ u.username }}
+            {% if u.id == user.id %}
+            <span class="text-xs text-gray-400 ml-1">(vous)</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <span class="text-xs px-2 py-0.5 rounded-full font-medium
+              {% if u.role == 'responsable' %}bg-teal-100 text-teal-700{% else %}bg-gray-100 text-gray-600{% endif %}">
+              {{ u.role }}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-gray-500">{{ u.created_at.strftime('%d/%m/%Y') }}</td>
+          <td class="px-4 py-3">
+            <div class="flex gap-2 justify-end">
+              <a href="/users/{{ u.id }}/edit" class="text-teal-600 hover:underline text-xs">Modifier</a>
+              {% if u.id != user.id %}
+              <form method="post" action="/users/{{ u.id }}/delete"
+                    onsubmit="return confirm('Supprimer le compte « {{ u.username }} » ?')">
+                <button type="submit" class="text-red-500 hover:underline text-xs">Supprimer</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
