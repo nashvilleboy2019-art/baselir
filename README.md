@@ -12,13 +12,25 @@ Application web de gestion des habilitations au sein d'une organisation. Remplac
 
 ## Aperçu
 
-| Tableau de bord | Audit — Écarts d'attestations |
+| Connexion | Tableau de bord |
 |---|---|
-| ![Dashboard](screenshots/01_dashboard.png) | ![Audit](screenshots/02_audit.png) |
+| ![Login](screenshots/01_login.png) | ![Dashboard](screenshots/02_dashboard.png) |
 
-| Référentiels | Paramètres (thème + logo + SSO) |
+| Liste des habilitations | Détail d'une habilitation |
 |---|---|
-| ![Référentiels](screenshots/03_referentiels.png) | ![Paramètres](screenshots/04_settings.png) |
+| ![Liste](screenshots/03_habilitations_list.png) | ![Détail](screenshots/04_habilitation_detail.png) |
+
+| Formulaire de saisie | Audit — Écarts d'attestations |
+|---|---|
+| ![Formulaire](screenshots/06_habilitation_new.png) | ![Audit](screenshots/08_audit.png) |
+
+| Référentiels | Import CSV / Excel |
+|---|---|
+| ![Référentiels](screenshots/09_referentiels.png) | ![Import](screenshots/11_import.png) |
+
+| Paramètres (thème + logo) | Journal d'activité |
+|---|---|
+| ![Paramètres](screenshots/14_settings_theme.png) | ![Journal](screenshots/13_activity.png) |
 
 ---
 
