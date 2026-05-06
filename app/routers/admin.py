@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app import models
+from app import models, theme_cache
 from app.utils import require_responsable, log_activity, set_flash, get_flash, get_config, set_config
 from app.templates_config import templates
 
@@ -199,16 +199,23 @@ async def delete_custom_value(type_id: int, value_id: int, request: Request,
 async def settings_page(request: Request, db: Session = Depends(get_db)):
     user = require_responsable(request, db)
     cfg = {
-        "ldap_enabled":  get_config(db, "ldap_enabled", "0"),
-        "ldap_server":   get_config(db, "ldap_server", ""),
-        "ldap_port":     get_config(db, "ldap_port", "389"),
-        "ldap_domain":   get_config(db, "ldap_domain", ""),
-        "ldap_base_dn":  get_config(db, "ldap_base_dn", ""),
-        "ldap_tls":      get_config(db, "ldap_tls", "0"),
-        "logo_filename": get_config(db, "logo_filename", ""),
+        "ldap_enabled":       get_config(db, "ldap_enabled", "0"),
+        "ldap_server":        get_config(db, "ldap_server", ""),
+        "ldap_port":          get_config(db, "ldap_port", "389"),
+        "ldap_domain":        get_config(db, "ldap_domain", ""),
+        "ldap_base_dn":       get_config(db, "ldap_base_dn", ""),
+        "ldap_tls":           get_config(db, "ldap_tls", "0"),
+        "ldap_allowed_ou":    get_config(db, "ldap_allowed_ou", ""),
+        "ldap_allowed_group": get_config(db, "ldap_allowed_group", ""),
+        "logo_filename":      get_config(db, "logo_filename", ""),
+        "theme_primary":      get_config(db, "theme_primary", "teal"),
+        "theme_secondary":    get_config(db, "theme_secondary", "orange"),
     }
     return templates.TemplateResponse(request, "admin/settings.html", {
-        "user": user, "active": "admin", "flash": get_flash(request), "cfg": cfg,
+        "user": user, "active": "settings", "flash": get_flash(request), "cfg": cfg,
+        "primary_choices":   theme_cache.PRIMARY_CHOICES,
+        "secondary_choices": theme_cache.SECONDARY_CHOICES,
+        "swatch_hex":        theme_cache.SWATCH_HEX,
     })
 
 
@@ -221,14 +228,18 @@ async def save_ldap(
     ldap_domain: str = Form(""),
     ldap_base_dn: str = Form(""),
     ldap_tls: str = Form("0"),
+    ldap_allowed_ou: str = Form(""),
+    ldap_allowed_group: str = Form(""),
 ):
     user = require_responsable(request, db)
-    set_config(db, "ldap_enabled", "1" if ldap_enabled == "1" else "0")
-    set_config(db, "ldap_server", ldap_server.strip())
-    set_config(db, "ldap_port", ldap_port.strip() or "389")
-    set_config(db, "ldap_domain", ldap_domain.strip())
-    set_config(db, "ldap_base_dn", ldap_base_dn.strip())
-    set_config(db, "ldap_tls", "1" if ldap_tls == "1" else "0")
+    set_config(db, "ldap_enabled",       "1" if ldap_enabled == "1" else "0")
+    set_config(db, "ldap_server",        ldap_server.strip())
+    set_config(db, "ldap_port",          ldap_port.strip() or "389")
+    set_config(db, "ldap_domain",        ldap_domain.strip())
+    set_config(db, "ldap_base_dn",       ldap_base_dn.strip())
+    set_config(db, "ldap_tls",           "1" if ldap_tls == "1" else "0")
+    set_config(db, "ldap_allowed_ou",    ldap_allowed_ou.strip())
+    set_config(db, "ldap_allowed_group", ldap_allowed_group.strip())
     log_activity(db, user, "Modification config LDAP")
     db.commit()
     set_flash(request, "Configuration LDAP enregistrée.")
@@ -272,4 +283,22 @@ async def delete_logo(request: Request, db: Session = Depends(get_db)):
     log_activity(db, user, "Suppression logo")
     db.commit()
     set_flash(request, "Logo supprimé.")
+    return RedirectResponse("/admin/settings", status_code=302)
+
+
+@router.post("/settings/theme")
+async def save_theme(
+    request: Request, db: Session = Depends(get_db),
+    theme_primary: str = Form("teal"),
+    theme_secondary: str = Form("orange"),
+):
+    user = require_responsable(request, db)
+    primary = theme_primary if theme_primary in theme_cache.VALID_COLORS else "teal"
+    secondary = theme_secondary if theme_secondary in theme_cache.VALID_COLORS else "orange"
+    set_config(db, "theme_primary", primary)
+    set_config(db, "theme_secondary", secondary)
+    theme_cache.update(primary, secondary)
+    log_activity(db, user, "Modification thème", details=f"{primary}/{secondary}")
+    db.commit()
+    set_flash(request, f"Thème mis à jour.")
     return RedirectResponse("/admin/settings", status_code=302)

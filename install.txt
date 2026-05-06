@@ -95,10 +95,24 @@ ACTIVE DIRECTORY / LDAP
    1. Cocher "Activer la connexion AD"
    2. Renseigner serveur, port, domaine, base DN
    3. Optionnel : activer TLS (port 636)
+   4. Optionnel : OU autorisée (ex: ou=IT,dc=societe,dc=local)
+      → Seuls les utilisateurs dont le DN contient ce chemin
+        peuvent se connecter
+   5. Optionnel : Groupe AD autorisé (ex: cn=BaseLIR-Users,...)
+      → Seuls les membres de ce groupe peuvent se connecter
 
    Les utilisateurs AD inconnus sont créés avec le rôle
    Auditeur. Le responsable peut changer leur rôle.
    En cas d'échec AD, la connexion locale reste disponible.
+
+THÈME DE COULEUR
+----------------
+
+   Dans Paramètres > Thème :
+   - Choisir une couleur principale (nav, boutons)
+   - Choisir une couleur secondaire (accents)
+   - Le thème est enregistré en base et s'applique
+     immédiatement à toute l'interface.
 
 CHAMPS PERSONNALISÉS
 --------------------

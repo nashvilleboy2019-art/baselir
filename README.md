@@ -16,6 +16,7 @@ Application web de gestion des habilitations au sein d'une organisation. Remplac
 | Gestion des utilisateurs | ✓ | — |
 | Logo société (page login) | ✓ | — |
 | SSO Active Directory / LDAP | ✓ | — |
+| Thème de couleur personnalisable | ✓ | — |
 | Journal d'activité | ✓ | ✓ |
 
 ## Stack technique
@@ -125,7 +126,16 @@ Nom et Prénom,Statut,Filiale du Groupe,Description,Service,Société,Rôle,Doma
 Configurer dans **Paramètres > Active Directory** :
 - Serveur LDAP, port, domaine (ex: `societe.local`), base DN
 - TLS optionnel (port 636)
+- Restriction par **OU** : seuls les utilisateurs dont le DN contient le chemin OU configuré peuvent se connecter
+- Restriction par **groupe AD** : seuls les membres du groupe configuré peuvent se connecter
 - Les utilisateurs AD inconnus sont créés avec le rôle Auditeur
+
+## Thème de couleur
+
+Configurer dans **Paramètres > Thème** :
+- **Couleur principale** : barre de navigation et boutons (teal, blue, indigo, purple, emerald, rose, sky, slate)
+- **Couleur secondaire** : accents (orange, amber, pink, violet…)
+- Le thème est persisté en base et s'applique à toute l'interface sans redémarrage
 
 ## Sécurité en production
 
@@ -136,4 +146,4 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ## Licence
 
-Usage interne — tous droits réservés.
+MIT License — Copyright (c) 2026 nashvilleboy2019-art

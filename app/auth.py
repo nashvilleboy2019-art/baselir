@@ -26,27 +26,62 @@ def _get_cfg(db: Session, key: str, default: str = "") -> str:
     return item.value if item and item.value is not None else default
 
 
+def _domain_to_base_dn(domain: str) -> str:
+    """company.local  →  dc=company,dc=local"""
+    return ",".join(f"dc={part}" for part in domain.split(".") if part)
+
+
 def ldap_authenticate(db: Session, username: str, password: str):
     if not LDAP_AVAILABLE:
         return None
     if _get_cfg(db, "ldap_enabled", "0") != "1":
         return None
 
-    server_host = _get_cfg(db, "ldap_server")
-    port = int(_get_cfg(db, "ldap_port", "389"))
-    domain = _get_cfg(db, "ldap_domain")
-    use_tls = _get_cfg(db, "ldap_tls", "0") == "1"
+    server_host    = _get_cfg(db, "ldap_server")
+    port           = int(_get_cfg(db, "ldap_port", "389"))
+    domain         = _get_cfg(db, "ldap_domain")
+    use_tls        = _get_cfg(db, "ldap_tls", "0") == "1"
+    base_dn        = _get_cfg(db, "ldap_base_dn") or _domain_to_base_dn(domain)
+    allowed_ou     = _get_cfg(db, "ldap_allowed_ou", "").strip()    # doit figurer dans le DN
+    allowed_group  = _get_cfg(db, "ldap_allowed_group", "").strip() # doit être dans memberOf
 
     if not server_host or not domain:
         return None
 
     try:
         tls_cfg = Tls(validate=ssl.CERT_NONE) if use_tls else None
-        srv = Server(server_host, port=port, use_ssl=use_tls, tls=tls_cfg, get_info=ALL)
+        srv  = Server(server_host, port=port, use_ssl=use_tls, tls=tls_cfg, get_info=ALL)
         conn = Connection(srv, user=f"{username}@{domain}", password=password,
                           authentication=SIMPLE, auto_bind=True)
+
+        # --- Vérification OU et/ou groupe ---
+        if allowed_ou or allowed_group:
+            conn.search(
+                search_base=base_dn,
+                search_filter=f"(sAMAccountName={username})",
+                attributes=["distinguishedName", "memberOf"],
+            )
+            if not conn.entries:
+                conn.unbind()
+                return None  # compte non trouvé dans l'annuaire
+
+            entry       = conn.entries[0]
+            user_dn     = str(entry.distinguishedName).lower() if entry.distinguishedName else ""
+            member_of   = [str(g).lower() for g in (entry.memberOf or [])]
+
+            # Restriction par OU : le DN de l'utilisateur doit contenir le chemin OU
+            if allowed_ou and allowed_ou.lower() not in user_dn:
+                conn.unbind()
+                return None  # utilisateur hors de l'OU autorisée
+
+            # Restriction par groupe AD : l'utilisateur doit être membre du groupe
+            if allowed_group and not any(allowed_group.lower() in g for g in member_of):
+                conn.unbind()
+                return None  # utilisateur non membre du groupe autorisé
+
         conn.unbind()
 
+        # Authentification AD réussie — créer le compte local si absent
         user = db.query(models.User).filter(models.User.username == username).first()
         if not user:
             user = models.User(

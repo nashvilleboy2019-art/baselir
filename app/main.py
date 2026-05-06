@@ -8,7 +8,7 @@ from datetime import date
 import os
 
 from app.database import get_db, engine
-from app import models, auth
+from app import models, auth, theme_cache
 from app.routers import habilitations, admin, audit, users, activity, import_hab
 from app.templates_config import templates
 from app.utils import get_flash, log_activity, require_login, get_config
@@ -59,6 +59,9 @@ async def startup_event():
     db = next(get_db())
     try:
         auth.create_default_data(db)
+        primary = get_config(db, "theme_primary", "teal")
+        secondary = get_config(db, "theme_secondary", "orange")
+        theme_cache.update(primary, secondary)
     finally:
         db.close()
 
