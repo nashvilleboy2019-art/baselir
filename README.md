@@ -138,6 +138,32 @@ Configurer dans **Paramètres > Thème** :
 - **Couleur secondaire** : accents (orange, amber, pink, violet…)
 - Le thème est persisté en base et s'applique à toute l'interface sans redémarrage
 
+## Données de démonstration
+
+Deux scripts utilitaires sont fournis à la racine du projet.
+
+### Charger les données fictives
+
+```bash
+python seed_demo.py
+```
+
+Injecte 20 habilitations réalistes pour la société fictive **Groupe Meridia** :
+- 5 filiales, 4 entités juridiques, 6 services, 5 domaines
+- Statuts variés : 13 Actif · 2 Suspendu · 2 Révoqué
+- 6 attestations expirées (pour illustrer la page Audit)
+
+> Les données ne sont **jamais** commitées — `data/` est dans `.gitignore`.
+
+### Remettre la base à zéro
+
+```bash
+python reset_db.py
+```
+
+Supprime toutes les habilitations, référentiels et configuration, puis recrée
+les comptes et données par défaut (admin, auditeur, 3 statuts, 3 domaines, 3 rôles).
+
 ## Sécurité en production
 
 Remplacer la clé de session dans `app/main.py` :
