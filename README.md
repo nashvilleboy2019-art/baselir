@@ -1,6 +1,26 @@
 # BaseLIR — Base de Liaisons Individus-Rôles
 
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104%2B-009688?logo=fastapi&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-local-003B57?logo=sqlite&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/licence-MIT-green)
+
 Application web de gestion des habilitations au sein d'une organisation. Remplace un fichier Excel de suivi des personnes habilitées à intervenir sur un domaine avec un rôle spécifique.
+
+---
+
+## Aperçu
+
+| Tableau de bord | Audit — Écarts d'attestations |
+|---|---|
+| ![Dashboard](screenshots/01_dashboard.png) | ![Audit](screenshots/02_audit.png) |
+
+| Référentiels | Paramètres (thème + logo + SSO) |
+|---|---|
+| ![Référentiels](screenshots/03_referentiels.png) | ![Paramètres](screenshots/04_settings.png) |
+
+---
 
 ## Fonctionnalités
 
