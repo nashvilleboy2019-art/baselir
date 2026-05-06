@@ -64,6 +64,7 @@ FONCTIONNALITÉS (RESPONSABLE)
    - Référentiels : gérer les listes déroulantes + champs
      personnalisés (onglet "Champs perso.")
    - Paramètres :
+     * Thème de couleur (couleur principale + secondaire)
      * Logo société → affiché sur la page de connexion
      * Active Directory / LDAP (SSO)
    - Utilisateurs : créer, modifier, supprimer

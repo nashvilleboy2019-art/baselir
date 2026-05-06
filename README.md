@@ -68,6 +68,7 @@ BaseLIR/
 │   ├── database.py          # SQLite → data/baselir.db
 │   ├── auth.py              # Auth locale + LDAP/AD
 │   ├── utils.py             # Helpers (login, config, flash, pagination)
+│   ├── theme_cache.py       # Cache module-level du thème de couleur
 │   ├── templates_config.py
 │   └── routers/
 │       ├── habilitations.py # CRUD + champs dynamiques
@@ -79,7 +80,7 @@ BaseLIR/
 ├── templates/
 │   ├── admin/
 │   │   ├── referentiels.html  # Onglet champs perso inclus
-│   │   └── settings.html      # Logo + LDAP
+│   │   └── settings.html      # Thème, logo, LDAP
 │   ├── habilitations/         # list, form, detail, history
 │   ├── import/                # upload, result
 │   └── ...
