@@ -1,125 +1,561 @@
-{% extends "base.html" %}
-{% block title %}Guide d'utilisation{% endblock %}
-{% block content %}
-<div class="max-w-4xl mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold text-gray-800 mb-2">Guide d'utilisation</h1>
-  <p class="text-gray-500 mb-8">BaseLIR — Base de Liaisons Individus-Rôles</p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guide — BaseLIR</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 text-sm">
 
-  <div class="space-y-6">
-
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-      <h2 class="text-lg font-semibold text-teal-700 mb-3">Présentation</h2>
-      <p class="text-sm text-gray-600 leading-relaxed">
-        <strong>BaseLIR</strong> permet de gérer les habilitations des individus au sein de l'organisation.
-        Chaque habilitation établit un lien entre une personne, son rôle et son domaine d'intervention.
-        L'application remplace un fichier Excel et offre un suivi des modifications, un contrôle
-        des attestations et une gestion des accès par rôle.
-      </p>
+  <!-- Top bar -->
+  <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow">
+    <div>
+      <span class="font-bold text-base tracking-tight">BaseLIR</span>
+      <span class="text-slate-400 ml-3">Guide d'utilisation &amp; installation</span>
     </div>
-
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-      <h2 class="text-lg font-semibold text-teal-700 mb-3">Rôles applicatifs</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <div class="bg-teal-50 rounded-lg p-4">
-          <p class="font-semibold text-teal-800 mb-2">Responsable</p>
-          <ul class="space-y-1 text-teal-700">
-            <li>✓ Créer, modifier, supprimer des habilitations</li>
-            <li>✓ Gérer les référentiels (Admin)</li>
-            <li>✓ Gérer les comptes utilisateurs</li>
-            <li>✓ Accès à toutes les pages</li>
-          </ul>
-        </div>
-        <div class="bg-gray-50 rounded-lg p-4">
-          <p class="font-semibold text-gray-700 mb-2">Auditeur</p>
-          <ul class="space-y-1 text-gray-600">
-            <li>✓ Consulter toutes les habilitations</li>
-            <li>✓ Voir les écarts (page Audit)</li>
-            <li>✓ Consulter le journal d'activité</li>
-            <li>✗ Pas de modification ni de gestion admin</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-      <h2 class="text-lg font-semibold text-teal-700 mb-3">Champs d'une habilitation</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <span class="font-medium text-gray-700 w-36 shrink-0">Nom et Prénom</span>
-          <span class="text-gray-500">Identité de la personne habilitée</span>
-        </div>
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <span class="font-medium text-gray-700 w-36 shrink-0">Statut</span>
-          <span class="text-gray-500">État de l'habilitation (Actif, Suspendu…)</span>
-        </div>
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <span class="font-medium text-gray-700 w-36 shrink-0">Filiale</span>
-          <span class="text-gray-500">Filiale du groupe à laquelle appartient la personne</span>
-        </div>
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <span class="font-medium text-gray-700 w-36 shrink-0">Description</span>
-          <span class="text-gray-500">Nature de la mission ou du profil</span>
-        </div>
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <span class="font-medium text-gray-700 w-36 shrink-0">Service</span>
-          <span class="text-gray-500">Service ou département d'appartenance</span>
-        </div>
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <span class="font-medium text-gray-700 w-36 shrink-0">Société</span>
-          <span class="text-gray-500">Entité juridique de rattachement</span>
-        </div>
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <span class="font-medium text-gray-700 w-36 shrink-0">Rôle</span>
-          <span class="text-gray-500">Rôle ou niveau d'accès accordé</span>
-        </div>
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <span class="font-medium text-gray-700 w-36 shrink-0">Domaine</span>
-          <span class="text-gray-500">Périmètre fonctionnel de l'habilitation</span>
-        </div>
-        <div class="flex gap-3 p-3 bg-gray-50 rounded-lg">
-          <span class="font-medium text-gray-700 w-36 shrink-0">Date d'octroi</span>
-          <span class="text-gray-500">Date à laquelle l'habilitation a été accordée</span>
-        </div>
-        <div class="flex gap-3 p-3 bg-red-50 rounded-lg border border-red-100">
-          <span class="font-medium text-red-700 w-36 shrink-0">Date attestations</span>
-          <span class="text-red-600">Date limite de validité — génère un écart si dépassée</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-      <h2 class="text-lg font-semibold text-teal-700 mb-3">Page Audit — Écarts</h2>
-      <p class="text-sm text-gray-600 leading-relaxed">
-        La page <strong>Audit</strong> affiche toutes les habilitations dont la date des attestations est antérieure
-        à la date du jour. Ces enregistrements constituent des <em>écarts</em> qui doivent être régularisés
-        par le responsable (mise à jour de la date, révocation ou suspension de l'habilitation).
-        Les auditeurs peuvent consulter et filtrer cette liste ; seul le responsable peut effectuer les corrections.
-      </p>
-    </div>
-
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-      <h2 class="text-lg font-semibold text-teal-700 mb-3">Référentiels (Admin)</h2>
-      <p class="text-sm text-gray-600 leading-relaxed mb-3">
-        Les référentiels définissent les valeurs disponibles dans les listes déroulantes des formulaires.
-        La page <strong>Administration → Référentiels</strong> permet au responsable de gérer ces valeurs
-        par onglet : Statuts, Filiales, Descriptions, Services, Sociétés, Rôles, Domaines.
-      </p>
-      <p class="text-sm text-gray-600">
-        Les <strong>statuts</strong> disposent d'une couleur associée pour une identification visuelle rapide.
-        Pour chaque référentiel, un ordre d'affichage peut être défini.
-      </p>
-    </div>
-
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-      <h2 class="text-lg font-semibold text-teal-700 mb-3">Versioning & Traçabilité</h2>
-      <p class="text-sm text-gray-600 leading-relaxed">
-        Chaque création et modification d'habilitation est enregistrée dans un historique.
-        L'historique complet (avant / après) est accessible depuis la fiche de chaque habilitation.
-        Toutes les actions (connexion, modification, suppression…) sont également tracées dans le
-        <strong>Journal d'activité</strong>.
-      </p>
-    </div>
-
+    <a href="/" class="text-slate-300 hover:text-white text-xs transition-colors">← Retour à l'application</a>
   </div>
-</div>
-{% endblock %}
+
+  <div class="max-w-5xl mx-auto px-6 py-10 flex gap-10">
+
+    <!-- Sidebar TOC -->
+    <aside class="w-52 flex-shrink-0 hidden lg:block">
+      <div class="sticky top-24">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Sommaire</p>
+        <nav class="space-y-0.5 text-xs">
+          <a href="#installation"   class="block text-gray-600 hover:text-teal-700 py-0.5">Installation</a>
+          <a href="#demarrage"      class="block text-gray-600 hover:text-teal-700 py-0.5">Démarrage</a>
+          <a href="#roles"          class="block text-gray-600 hover:text-teal-700 py-0.5">Rôles</a>
+          <a href="#habilitations"  class="block text-gray-600 hover:text-teal-700 py-0.5 pl-2">→ Habilitations</a>
+          <a href="#historique"     class="block text-gray-600 hover:text-teal-700 py-0.5 pl-2">→ Historique</a>
+          <a href="#audit"          class="block text-gray-600 hover:text-teal-700 py-0.5 pl-2">→ Audit</a>
+          <a href="#referentiels"   class="block text-gray-600 hover:text-teal-700 py-0.5 pl-2">→ Référentiels</a>
+          <a href="#champs-perso"   class="block text-gray-600 hover:text-teal-700 py-0.5 pl-2">→ Champs perso.</a>
+          <a href="#import"         class="block text-gray-600 hover:text-teal-700 py-0.5 pl-2">→ Import CSV/Excel</a>
+          <a href="#utilisateurs"   class="block text-gray-600 hover:text-teal-700 py-0.5 pl-2">→ Utilisateurs</a>
+          <a href="#journal"        class="block text-gray-600 hover:text-teal-700 py-0.5 pl-2">→ Journal</a>
+          <a href="#parametres"     class="block text-gray-600 hover:text-teal-700 py-0.5 pl-2">→ Paramètres</a>
+          <a href="#docker"         class="block text-gray-600 hover:text-teal-700 py-0.5">Docker</a>
+          <a href="#demo"           class="block text-gray-600 hover:text-teal-700 py-0.5">Données de démo</a>
+          <a href="#faq"            class="block text-gray-600 hover:text-teal-700 py-0.5">FAQ</a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="flex-1 min-w-0 space-y-12">
+
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Guide BaseLIR</h1>
+        <p class="text-gray-500">
+          BaseLIR est une application de gestion des habilitations individus-rôles. Elle remplace un fichier Excel
+          et offre un suivi des attestations, un historique des modifications et une gestion des accès par rôle.
+        </p>
+      </div>
+
+      <!-- ── INSTALLATION ───────────────────────────────────────────────── -->
+      <section id="installation">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Installation</h2>
+        <div class="space-y-5">
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Prérequis</h3>
+            <ul class="list-disc list-inside text-gray-600 space-y-1">
+              <li>Python 3.10 ou supérieur</li>
+              <li>pip</li>
+              <li>Accès Internet au premier lancement (CDN Tailwind CSS)</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">1. Installer les dépendances</h3>
+            <div class="bg-slate-800 text-emerald-300 rounded-lg p-4 font-mono text-xs space-y-1">
+              <div>python -m venv venv</div>
+              <div>venv\Scripts\activate &nbsp;&nbsp;<span class="text-slate-500"># Windows</span></div>
+              <div>pip install -r requirements.txt</div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">2. Lancer l'application</h3>
+            <div class="bg-slate-800 text-emerald-300 rounded-lg p-4 font-mono text-xs">
+              python run.py
+            </div>
+            <p class="text-gray-500 text-xs mt-2">
+              La base de données SQLite est créée automatiquement dans <code class="bg-gray-100 px-1 rounded font-mono">data/baselir.db</code>.
+              Deux comptes par défaut sont initialisés au premier démarrage.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">3. Accéder à l'application</h3>
+            <p class="text-gray-600">Ouvrez votre navigateur sur <span class="font-mono bg-teal-50 text-teal-700 px-2 py-0.5 rounded text-xs">http://localhost:8001</span></p>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Structure des fichiers</h3>
+            <div class="bg-gray-100 rounded-lg p-4 font-mono text-xs text-gray-700 leading-relaxed">
+              BaseLIR/<br>
+              ├── run.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-400">← point d'entrée</span><br>
+              ├── requirements.txt<br>
+              ├── seed_demo.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-400">← données de démo</span><br>
+              ├── reset_db.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-400">← remise à zéro</span><br>
+              ├── data/<br>
+              │&nbsp;&nbsp; └── baselir.db &nbsp;&nbsp;&nbsp;<span class="text-gray-400">← base SQLite (générée)</span><br>
+              ├── uploads/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-400">← logos</span><br>
+              └── app/<br>
+              &nbsp;&nbsp;&nbsp; ├── main.py<br>
+              &nbsp;&nbsp;&nbsp; ├── models.py<br>
+              &nbsp;&nbsp;&nbsp; ├── auth.py<br>
+              &nbsp;&nbsp;&nbsp; ├── theme_cache.py<br>
+              &nbsp;&nbsp;&nbsp; ├── routers/<br>
+              &nbsp;&nbsp;&nbsp; └── utils.py
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── DÉMARRAGE ──────────────────────────────────────────────────── -->
+      <section id="demarrage">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Premier démarrage</h2>
+        <div class="overflow-hidden rounded-xl border border-gray-200">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+                <th class="text-left px-4 py-3 font-medium">Compte</th>
+                <th class="text-left px-4 py-3 font-medium">Mot de passe</th>
+                <th class="text-left px-4 py-3 font-medium">Rôle</th>
+                <th class="text-left px-4 py-3 font-medium">Droits</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr>
+                <td class="px-4 py-3 font-mono font-bold text-gray-900">admin</td>
+                <td class="px-4 py-3 font-mono text-gray-600">noukiebogosse2026</td>
+                <td class="px-4 py-3"><span class="px-2 py-0.5 bg-teal-50 text-teal-700 rounded text-xs font-medium">responsable</span></td>
+                <td class="px-4 py-3 text-gray-600">Accès complet</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-3 font-mono font-bold text-gray-900">auditeur</td>
+                <td class="px-4 py-3 font-mono text-gray-600">noukiebogosse2026</td>
+                <td class="px-4 py-3"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-medium">auditeur</span></td>
+                <td class="px-4 py-3 text-gray-600">Lecture seule + audit</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-amber-700 text-xs mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          Changez les mots de passe par défaut dès la première utilisation via <strong>Utilisateurs → Modifier</strong>.
+        </p>
+      </section>
+
+      <!-- ── RÔLES ──────────────────────────────────────────────────────── -->
+      <section id="roles">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Rôles et droits</h2>
+        <div class="overflow-hidden rounded-xl border border-gray-200">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+                <th class="text-left px-4 py-3 font-medium">Action</th>
+                <th class="text-center px-4 py-3 font-medium">Auditeur</th>
+                <th class="text-center px-4 py-3 font-medium">Responsable</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 text-xs">
+              <tr>                <td class="px-4 py-2.5 text-gray-700">Consulter les habilitations</td><td class="text-center text-emerald-600 font-bold">✓</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr class="bg-gray-50"><td class="px-4 py-2.5 text-gray-700">Rechercher et filtrer</td><td class="text-center text-emerald-600 font-bold">✓</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr>                <td class="px-4 py-2.5 text-gray-700">Historique des modifications</td><td class="text-center text-emerald-600 font-bold">✓</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr class="bg-gray-50"><td class="px-4 py-2.5 text-gray-700">Page Audit (écarts attestations)</td><td class="text-center text-emerald-600 font-bold">✓</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr>                <td class="px-4 py-2.5 text-gray-700">Journal d'activité</td><td class="text-center text-emerald-600 font-bold">✓</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr class="bg-gray-50"><td class="px-4 py-2.5 text-gray-700">Créer / modifier / supprimer une habilitation</td><td class="text-center text-red-400">✗</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr>                <td class="px-4 py-2.5 text-gray-700">Importer CSV / Excel</td><td class="text-center text-red-400">✗</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr class="bg-gray-50"><td class="px-4 py-2.5 text-gray-700">Gérer les référentiels</td><td class="text-center text-red-400">✗</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr>                <td class="px-4 py-2.5 text-gray-700">Créer des champs personnalisés</td><td class="text-center text-red-400">✗</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr class="bg-gray-50"><td class="px-4 py-2.5 text-gray-700">Gérer les comptes utilisateurs</td><td class="text-center text-red-400">✗</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+              <tr>                <td class="px-4 py-2.5 text-gray-700">Paramètres (logo, thème, SSO AD)</td><td class="text-center text-red-400">✗</td><td class="text-center text-emerald-600 font-bold">✓</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── HABILITATIONS ──────────────────────────────────────────────── -->
+      <section id="habilitations">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Habilitations</h2>
+        <div class="space-y-4 text-gray-600">
+          <img src="/screenshots/03_habilitations_list.png" alt="Liste des habilitations"
+               class="w-full rounded-xl border border-gray-200 shadow-sm">
+          <p>La liste des habilitations affiche l'ensemble des personnes habilitées. Chaque ligne indique le statut (coloré), le rôle, le domaine et les dates clés. Les dates d'attestations dépassées apparaissent en rouge.</p>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Champs d'une habilitation</h3>
+            <div class="overflow-hidden rounded-xl border border-gray-200">
+              <table class="w-full text-xs">
+                <tbody class="divide-y divide-gray-100">
+                  <tr><td class="px-4 py-2.5 font-medium text-gray-800 w-40">Nom et Prénom</td><td class="px-4 py-2.5 text-gray-600">Identité de la personne habilitée</td></tr>
+                  <tr class="bg-gray-50"><td class="px-4 py-2.5 font-medium text-gray-800">Statut</td><td class="px-4 py-2.5 text-gray-600">État de l'habilitation (ex : Actif, Suspendu, Révoqué) — couleur personnalisable</td></tr>
+                  <tr><td class="px-4 py-2.5 font-medium text-gray-800">Filiale du Groupe</td><td class="px-4 py-2.5 text-gray-600">Filiale de rattachement</td></tr>
+                  <tr class="bg-gray-50"><td class="px-4 py-2.5 font-medium text-gray-800">Description</td><td class="px-4 py-2.5 text-gray-600">Nature de la mission ou du profil</td></tr>
+                  <tr><td class="px-4 py-2.5 font-medium text-gray-800">Service</td><td class="px-4 py-2.5 text-gray-600">Service ou département d'appartenance</td></tr>
+                  <tr class="bg-gray-50"><td class="px-4 py-2.5 font-medium text-gray-800">Société</td><td class="px-4 py-2.5 text-gray-600">Entité juridique de rattachement</td></tr>
+                  <tr><td class="px-4 py-2.5 font-medium text-gray-800">Rôle</td><td class="px-4 py-2.5 text-gray-600">Rôle ou niveau d'accès accordé</td></tr>
+                  <tr class="bg-gray-50"><td class="px-4 py-2.5 font-medium text-gray-800">Domaine</td><td class="px-4 py-2.5 text-gray-600">Périmètre fonctionnel de l'habilitation</td></tr>
+                  <tr><td class="px-4 py-2.5 font-medium text-gray-800">Date d'octroi</td><td class="px-4 py-2.5 text-gray-600">Date à laquelle l'habilitation a été accordée</td></tr>
+                  <tr class="bg-red-50"><td class="px-4 py-2.5 font-medium text-red-700">Date des attestations</td><td class="px-4 py-2.5 text-red-600">Date limite de validité — génère un écart si dépassée</td></tr>
+                  <tr><td class="px-4 py-2.5 font-medium text-gray-800">Champs perso.</td><td class="px-4 py-2.5 text-gray-600">Champs supplémentaires définis par l'administrateur (ex : Région, Niveau…)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Créer une habilitation</h3>
+            <img src="/screenshots/06_habilitation_new.png" alt="Nouvelle habilitation"
+                 class="w-full rounded-xl border border-gray-200 shadow-sm mb-3">
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Cliquer sur <strong>+ Nouvelle habilitation</strong></li>
+              <li>Remplir les champs (les listes déroulantes sont issues des référentiels)</li>
+              <li>Cliquer sur <strong>Enregistrer</strong></li>
+            </ol>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Modifier ou supprimer</h3>
+            <img src="/screenshots/04_habilitation_detail.png" alt="Détail habilitation"
+                 class="w-full rounded-xl border border-gray-200 shadow-sm mb-3">
+            <p>Depuis la fiche d'une habilitation, le responsable peut modifier tous les champs ou supprimer l'entrée. Chaque modification est tracée dans l'historique.</p>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Recherche et filtres</h3>
+            <p>La liste dispose d'une barre de recherche (nom/prénom) et de filtres par statut, domaine, rôle et société. Les colonnes sont triables.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── HISTORIQUE ─────────────────────────────────────────────────── -->
+      <section id="historique">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Historique des modifications</h2>
+        <div class="space-y-3 text-gray-600">
+          <img src="/screenshots/07_habilitation_history.png" alt="Historique"
+               class="w-full rounded-xl border border-gray-200 shadow-sm">
+          <p>Chaque création, modification et suppression est enregistrée automatiquement. L'historique est accessible depuis la fiche de l'habilitation et indique :</p>
+          <ul class="list-disc list-inside space-y-1">
+            <li>L'action effectuée (Création, Modification, Suppression)</li>
+            <li>L'utilisateur responsable de la modification</li>
+            <li>La date et l'heure exactes</li>
+            <li>Les valeurs avant et après modification</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── AUDIT ──────────────────────────────────────────────────────── -->
+      <section id="audit">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Audit — Écarts d'attestations</h2>
+        <div class="space-y-4 text-gray-600">
+          <img src="/screenshots/08_audit.png" alt="Page Audit"
+               class="w-full rounded-xl border border-gray-200 shadow-sm">
+          <p>La page <strong>Audit</strong> liste toutes les habilitations dont la date des attestations est antérieure à la date du jour. Ces <em>écarts</em> signalent des habilitations à régulariser.</p>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Comment régulariser un écart</h3>
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Cliquer sur <strong>Régulariser</strong> à droite de la ligne</li>
+              <li>Modifier la date des attestations (nouvelle échéance) ou changer le statut (Suspendu, Révoqué)</li>
+              <li>Enregistrer — l'écart disparaît automatiquement si la nouvelle date est dans le futur</li>
+            </ol>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Filtres disponibles</h3>
+            <p>La liste d'écarts peut être filtrée par domaine, service et société pour faciliter le traitement par périmètre.</p>
+          </div>
+
+          <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-blue-800 text-xs">
+            Les auditeurs peuvent consulter et filtrer la liste des écarts. Seuls les responsables peuvent effectuer les corrections (lien "Régulariser").
+          </div>
+        </div>
+      </section>
+
+      <!-- ── RÉFÉRENTIELS ───────────────────────────────────────────────── -->
+      <section id="referentiels">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Référentiels</h2>
+        <div class="space-y-4 text-gray-600">
+          <img src="/screenshots/09_referentiels.png" alt="Référentiels"
+               class="w-full rounded-xl border border-gray-200 shadow-sm">
+          <p>Les référentiels définissent les valeurs disponibles dans les listes déroulantes des formulaires. Chaque référentiel est géré dans un onglet dédié.</p>
+
+          <div class="overflow-hidden rounded-xl border border-gray-200">
+            <table class="w-full text-xs">
+              <thead><tr class="bg-gray-50 text-gray-500 uppercase tracking-wide border-b"><th class="text-left px-4 py-2.5 font-medium">Référentiel</th><th class="text-left px-4 py-2.5 font-medium">Particularité</th></tr></thead>
+              <tbody class="divide-y divide-gray-100">
+                <tr><td class="px-4 py-2.5 font-medium text-gray-800">Statuts</td><td class="px-4 py-2.5 text-gray-600">Couleur associée à chaque statut pour la visualisation dans la liste</td></tr>
+                <tr class="bg-gray-50"><td class="px-4 py-2.5 font-medium text-gray-800">Filiales</td><td class="px-4 py-2.5 text-gray-600">Filiales du groupe</td></tr>
+                <tr><td class="px-4 py-2.5 font-medium text-gray-800">Descriptions</td><td class="px-4 py-2.5 text-gray-600">Natures de mission ou profils</td></tr>
+                <tr class="bg-gray-50"><td class="px-4 py-2.5 font-medium text-gray-800">Services</td><td class="px-4 py-2.5 text-gray-600">Services et départements</td></tr>
+                <tr><td class="px-4 py-2.5 font-medium text-gray-800">Sociétés</td><td class="px-4 py-2.5 text-gray-600">Entités juridiques</td></tr>
+                <tr class="bg-gray-50"><td class="px-4 py-2.5 font-medium text-gray-800">Rôles</td><td class="px-4 py-2.5 text-gray-600">Rôles ou niveaux d'accès</td></tr>
+                <tr><td class="px-4 py-2.5 font-medium text-gray-800">Domaines</td><td class="px-4 py-2.5 text-gray-600">Périmètres fonctionnels</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="text-xs text-gray-500">Pour chaque référentiel : ajouter, modifier, supprimer et définir l'ordre d'affichage. Les valeurs utilisées dans des habilitations existantes ne peuvent pas être supprimées.</p>
+        </div>
+      </section>
+
+      <!-- ── CHAMPS PERSO ───────────────────────────────────────────────── -->
+      <section id="champs-perso">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Champs personnalisés</h2>
+        <div class="space-y-4 text-gray-600">
+          <p>L'onglet <strong>Champs perso.</strong> dans Référentiels permet de créer des champs supplémentaires (ex : Région, Pays, Niveau de certification…) <strong>sans modifier le schéma de la base de données</strong>. Ces champs apparaissent automatiquement dans tous les formulaires d'habilitation.</p>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Créer un champ personnalisé</h3>
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Aller dans <strong>Référentiels → Champs perso.</strong></li>
+              <li>Saisir un libellé (ex : <em>Région</em>) et un nom technique (ex : <em>region</em>)</li>
+              <li>Créer le champ — il apparaît immédiatement dans les formulaires d'habilitation</li>
+              <li>Ajouter les valeurs possibles (ex : Nord, Sud, Est, Ouest)</li>
+            </ol>
+          </div>
+
+          <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-blue-800 text-xs">
+            Supprimer un type de champ personnalisé supprime également toutes ses valeurs et les données associées aux habilitations existantes.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── IMPORT ─────────────────────────────────────────────────────── -->
+      <section id="import">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Import CSV / Excel</h2>
+        <div class="space-y-4 text-gray-600">
+          <img src="/screenshots/11_import.png" alt="Import"
+               class="w-full rounded-xl border border-gray-200 shadow-sm">
+          <p>Importer en masse depuis un fichier CSV ou Excel existant (extraction RH, tableur legacy…). Les valeurs de référentiels absentes sont créées automatiquement.</p>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Procédure</h3>
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Aller dans <strong>Import</strong></li>
+              <li>Télécharger le modèle CSV si nécessaire (lien en bas de page)</li>
+              <li>Ou utiliser le fichier <code class="bg-gray-100 px-1 rounded font-mono">sample_import.xlsx</code> fourni</li>
+              <li>Sélectionner le fichier (<code class="bg-gray-100 px-1 rounded font-mono">.csv</code>, <code class="bg-gray-100 px-1 rounded font-mono">.xlsx</code>)</li>
+              <li>Cliquer sur <strong>Importer</strong> — un rapport s'affiche avec le détail des lignes traitées</li>
+            </ol>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Colonnes attendues</h3>
+            <div class="overflow-hidden rounded-xl border border-gray-200">
+              <table class="w-full text-xs">
+                <thead><tr class="bg-gray-50 text-gray-500 uppercase tracking-wide border-b"><th class="text-left px-3 py-2 font-medium">Colonne</th><th class="text-left px-3 py-2 font-medium">Noms acceptés</th></tr></thead>
+                <tbody class="divide-y divide-gray-100">
+                  <tr><td class="px-3 py-2 font-medium text-gray-800">Nom et Prénom</td><td class="px-3 py-2 text-gray-500 font-mono">Nom et Prénom, Nom Prénom, nom_prenom</td></tr>
+                  <tr class="bg-gray-50"><td class="px-3 py-2 font-medium text-gray-800">Statut</td><td class="px-3 py-2 text-gray-500 font-mono">Statut</td></tr>
+                  <tr><td class="px-3 py-2 font-medium text-gray-800">Filiale du Groupe</td><td class="px-3 py-2 text-gray-500 font-mono">Filiale du Groupe, Filiale</td></tr>
+                  <tr class="bg-gray-50"><td class="px-3 py-2 font-medium text-gray-800">Description</td><td class="px-3 py-2 text-gray-500 font-mono">Description</td></tr>
+                  <tr><td class="px-3 py-2 font-medium text-gray-800">Service</td><td class="px-3 py-2 text-gray-500 font-mono">Service</td></tr>
+                  <tr class="bg-gray-50"><td class="px-3 py-2 font-medium text-gray-800">Société</td><td class="px-3 py-2 text-gray-500 font-mono">Société, Societe</td></tr>
+                  <tr><td class="px-3 py-2 font-medium text-gray-800">Rôle</td><td class="px-3 py-2 text-gray-500 font-mono">Rôle, Role</td></tr>
+                  <tr class="bg-gray-50"><td class="px-3 py-2 font-medium text-gray-800">Domaine</td><td class="px-3 py-2 text-gray-500 font-mono">Domaine</td></tr>
+                  <tr><td class="px-3 py-2 font-medium text-gray-800">Date d'octroi</td><td class="px-3 py-2 text-gray-500 font-mono">Date d'octroi, Date octroi, date_octroi</td></tr>
+                  <tr class="bg-gray-50"><td class="px-3 py-2 font-medium text-gray-800">Date des attestations</td><td class="px-3 py-2 text-gray-500 font-mono">Date des attestations, Date attestation</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">L'ordre des colonnes est libre. Les noms de colonnes sont normalisés (accents et casse ignorés).</p>
+          </div>
+
+          <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-blue-800 text-xs space-y-1">
+            <p>Formats de dates acceptés : <code class="bg-white/60 px-1 rounded font-mono">JJ/MM/AAAA</code>, <code class="bg-white/60 px-1 rounded font-mono">AAAA-MM-JJ</code>, <code class="bg-white/60 px-1 rounded font-mono">JJ-MM-AAAA</code>.</p>
+            <p>Les lignes en doublon (même nom + même société) sont ignorées sans erreur.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── UTILISATEURS ───────────────────────────────────────────────── -->
+      <section id="utilisateurs">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Gestion des utilisateurs</h2>
+        <div class="space-y-4 text-gray-600">
+          <img src="/screenshots/12_users.png" alt="Utilisateurs"
+               class="w-full rounded-xl border border-gray-200 shadow-sm">
+          <p>Accessible depuis le menu <strong>Utilisateurs</strong> (responsables uniquement). Permet de créer, modifier et supprimer les comptes applicatifs.</p>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Créer un compte</h3>
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Cliquer sur <strong>Nouvel utilisateur</strong></li>
+              <li>Saisir un identifiant, un mot de passe et choisir le rôle</li>
+              <li>Enregistrer</li>
+            </ol>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Modifier un compte</h3>
+            <p>Le mot de passe peut être laissé vide pour le conserver sans modification.</p>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-amber-800 text-xs">
+            Il est impossible de supprimer son propre compte ou le dernier compte responsable.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── JOURNAL ────────────────────────────────────────────────────── -->
+      <section id="journal">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Journal d'activité</h2>
+        <div class="space-y-3 text-gray-600">
+          <img src="/screenshots/13_activity.png" alt="Journal d'activité"
+               class="w-full rounded-xl border border-gray-200 shadow-sm">
+          <p>Toutes les actions sont tracées automatiquement : connexions, déconnexions, créations, modifications, suppressions, imports et changements de configuration. Le journal est accessible à tous les utilisateurs authentifiés et consultable à tout moment.</p>
+        </div>
+      </section>
+
+      <!-- ── PARAMÈTRES ─────────────────────────────────────────────────── -->
+      <section id="parametres">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Paramètres</h2>
+        <div class="space-y-5 text-gray-600">
+          <img src="/screenshots/14_settings_theme.png" alt="Paramètres"
+               class="w-full rounded-xl border border-gray-200 shadow-sm">
+          <p>Accessible depuis le menu <strong>Paramètres</strong> (responsables uniquement). Trois sections : <strong>Thème</strong>, <strong>Logo</strong> et <strong>Active Directory</strong>.</p>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Thème de couleur</h3>
+            <p>Personnalisez l'interface depuis la section <strong>Thème</strong> :</p>
+            <ul class="list-disc list-inside space-y-1 mt-2">
+              <li><strong>Couleur principale</strong> — barre de navigation et boutons principaux (8 choix)</li>
+              <li><strong>Couleur secondaire</strong> — accents de l'interface (8 choix)</li>
+            </ul>
+            <p class="text-xs text-gray-500 mt-2">Le thème est enregistré en base et s'applique immédiatement à toute l'interface, y compris la page de connexion.</p>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Logo société</h3>
+            <p>Déposez un logo (PNG, JPG, SVG, GIF, WEBP) depuis la section <strong>Logo</strong>. Il s'affiche sur la page de connexion à la place de l'icône par défaut.</p>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">SSO Active Directory / LDAP</h3>
+            <img src="/screenshots/15_settings_ldap.png" alt="Paramètres LDAP"
+                 class="w-full rounded-xl border border-gray-200 shadow-sm mb-3">
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Cocher <strong>Activer la connexion Active Directory</strong></li>
+              <li>Renseigner le serveur LDAP/AD (ex : <code class="bg-gray-100 px-1 rounded font-mono text-xs">ad.societe.local</code>), le port, le domaine et la base DN</li>
+              <li>Optionnel : activer TLS (port 636)</li>
+              <li>Optionnel : <strong>OU autorisée</strong> — seuls les utilisateurs dont le DN contient ce chemin peuvent se connecter (ex : <code class="bg-gray-100 px-1 rounded font-mono text-xs">ou=IT,dc=societe,dc=local</code>)</li>
+              <li>Optionnel : <strong>Groupe AD autorisé</strong> — seuls les membres de ce groupe peuvent se connecter</li>
+              <li>Enregistrer</li>
+            </ol>
+            <div class="mt-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-blue-800 text-xs space-y-1">
+              <p>En cas d'échec AD (serveur indisponible, utilisateur hors OU ou groupe), la connexion locale reste disponible.</p>
+              <p>Les comptes AD inconnus sont créés automatiquement avec le rôle <em>Auditeur</em>. Le responsable peut modifier leur rôle depuis la page Utilisateurs.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── DOCKER ─────────────────────────────────────────────────────── -->
+      <section id="docker">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Déploiement Docker</h2>
+        <div class="space-y-4 text-gray-600">
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Démarrage</h3>
+            <div class="bg-slate-800 text-emerald-300 rounded-lg p-4 font-mono text-xs">
+              docker compose up --build -d
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Application accessible sur <span class="font-mono bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded text-xs">http://localhost:8001</span></p>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Persistance des données</h3>
+            <p>Deux volumes montés depuis le dossier du projet :</p>
+            <ul class="list-disc list-inside space-y-1 mt-1 text-xs">
+              <li><code class="bg-gray-100 px-1 rounded font-mono">./data</code> — base SQLite et configuration</li>
+              <li><code class="bg-gray-100 px-1 rounded font-mono">./uploads</code> — logo société</li>
+            </ul>
+            <p class="mt-2 text-xs">Les données survivent aux redémarrages et mises à jour du conteneur.</p>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Sécurité en production</h3>
+            <p class="text-xs text-gray-600 mb-2">Remplacer la clé de session dans <code class="bg-gray-100 px-1 rounded font-mono">app/main.py</code> par une clé aléatoire :</p>
+            <div class="bg-slate-800 text-emerald-300 rounded-lg p-4 font-mono text-xs">
+              python -c "import secrets; print(secrets.token_hex(32))"
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── DONNÉES DE DÉMO ────────────────────────────────────────────── -->
+      <section id="demo">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Données de démonstration</h2>
+        <div class="space-y-4 text-gray-600">
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Charger les données fictives</h3>
+            <div class="bg-slate-800 text-emerald-300 rounded-lg p-4 font-mono text-xs">python seed_demo.py</div>
+            <p class="text-xs text-gray-500 mt-2">Injecte 20 habilitations fictives (Groupe Meridia) avec des statuts variés et des écarts d'attestations.</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-2">Remettre la base à zéro</h3>
+            <div class="bg-slate-800 text-emerald-300 rounded-lg p-4 font-mono text-xs">python reset_db.py</div>
+            <p class="text-xs text-gray-500 mt-2">Supprime toutes les habilitations, référentiels et configuration, puis recrée les comptes et données par défaut.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── FAQ ────────────────────────────────────────────────────────── -->
+      <section id="faq">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">FAQ</h2>
+        <div class="space-y-3" x-data="{ open: null }">
+
+          {% set faq = [
+            ("Où sont stockées les données ?",
+             "Dans un fichier SQLite local : data/baselir.db. Ce fichier contient toutes les données et peut être sauvegardé comme n'importe quel fichier. En mode Docker, il est dans le volume monté ./data."),
+            ("Comment sauvegarder la base ?",
+             "Copiez simplement data/baselir.db et uploads/. En Docker : docker run --rm -v baselir_data:/data alpine tar czf - /data > backup.tar.gz"),
+            ("Comment changer un mot de passe utilisateur ?",
+             "Via le menu Utilisateurs (responsable uniquement) : cliquer sur Modifier à côté du compte, saisir le nouveau mot de passe et valider. Laisser le champ vide pour ne pas le modifier."),
+            ("Mon fichier CSV n'est pas reconnu, que faire ?",
+             "Vérifiez que les colonnes Nom et Prénom, Statut, Filiale, Service, Société, Rôle et Domaine sont présentes. Les noms de colonnes sont flexibles (accents et casse ignorés). Téléchargez le modèle depuis la page Import pour partir du bon format."),
+            ("Les valeurs de référentiels absentes dans le CSV sont-elles créées automatiquement ?",
+             "Oui. Si une valeur de Statut, Filiale, Service, Société, Rôle ou Domaine n'existe pas dans les référentiels, elle est créée automatiquement lors de l'import. Vous pouvez ensuite lui attribuer une couleur (pour les statuts) ou un ordre depuis la page Référentiels."),
+            ("Le SSO Active Directory ne fonctionne pas, que vérifier ?",
+             "1) Vérifiez que le serveur LDAP est joignable depuis la machine hébergeant BaseLIR. 2) Vérifiez le domaine (ex : societe.local) et le port. 3) Si une OU ou un groupe est configuré, vérifiez que l'utilisateur en fait partie. 4) En cas d'échec LDAP, la connexion locale reste toujours disponible."),
+            ("L'application est-elle accessible depuis d'autres postes ?",
+             "En mode Docker : oui, par défaut sur le port 8001 de la machine hôte. En mode Python classique : lancez l'app avec l'hôte 0.0.0.0 en modifiant run.py (host='0.0.0.0') puis ouvrez le port 8001 dans le pare-feu."),
+            ("Comment ajouter un champ personnalisé sans toucher à la base ?",
+             "Allez dans Référentiels → onglet Champs perso., créez un type (ex : Région) avec son nom technique (ex : region), puis ajoutez les valeurs possibles. Le champ apparaît immédiatement dans tous les formulaires d'habilitation."),
+            ("Comment personnaliser les couleurs de l'interface ?",
+             "Allez dans Paramètres → section Thème. Choisissez une couleur principale (barre de navigation) et une couleur secondaire parmi les swatches proposés. Le thème s'applique immédiatement à toute l'interface sans redémarrage."),
+            ("Que faire si l'application ne démarre pas ?",
+             "Vérifiez que Python 3.10+ est installé et que les dépendances sont à jour (pip install -r requirements.txt). Vérifiez que le port 8001 n'est pas déjà occupé. En Docker : docker compose logs baselir pour consulter les journaux.")
+          ] %}
+
+          {% for question, reponse in faq %}
+          <div class="border border-gray-200 rounded-xl overflow-hidden">
+            <button @click="open = open === {{ loop.index }} ? null : {{ loop.index }}"
+                    class="w-full text-left px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <span class="font-medium text-gray-800 text-sm">{{ question }}</span>
+              <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200"
+                   :class="open === {{ loop.index }} ? 'rotate-180' : ''"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div x-show="open === {{ loop.index }}" x-transition
+                 class="px-4 pb-4 text-gray-600 border-t border-gray-100 pt-3 text-xs leading-relaxed">
+              {{ reponse }}
+            </div>
+          </div>
+          {% endfor %}
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>

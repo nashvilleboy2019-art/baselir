@@ -20,13 +20,16 @@ app.add_middleware(SessionMiddleware, secret_key="baselir-change-this-secret-key
 
 PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-static_dir = os.path.join(PARENT_DIR, "static")
-uploads_dir = os.path.join(PARENT_DIR, "uploads")
+static_dir      = os.path.join(PARENT_DIR, "static")
+uploads_dir     = os.path.join(PARENT_DIR, "uploads")
+screenshots_dir = os.path.join(PARENT_DIR, "screenshots")
 os.makedirs(static_dir, exist_ok=True)
 os.makedirs(uploads_dir, exist_ok=True)
+os.makedirs(screenshots_dir, exist_ok=True)
 
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
-app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+app.mount("/static",      StaticFiles(directory=static_dir),      name="static")
+app.mount("/uploads",     StaticFiles(directory=uploads_dir),     name="uploads")
+app.mount("/screenshots", StaticFiles(directory=screenshots_dir), name="screenshots")
 
 app.include_router(habilitations.router, prefix="/habilitations")
 app.include_router(admin.router, prefix="/admin")
