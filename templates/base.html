@@ -64,7 +64,9 @@
       <a href="/admin/settings" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'settings' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Paramètres</a>
       <a href="/users/" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'users' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Utilisateurs</a>
       {% endif %}
+      {% if request.session.get("role") == "responsable" %}
       <a href="/activity/" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'activity' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Journal</a>
+      {% endif %}
       <a href="/guide" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'guide' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Guide</a>
     </div>
     <div class="flex items-center gap-3 text-sm shrink-0 ml-4">
