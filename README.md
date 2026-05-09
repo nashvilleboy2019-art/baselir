@@ -32,12 +32,17 @@ Application web de gestion des habilitations au sein d'une organisation. Remplac
 |---|---|
 | ![Paramètres](screenshots/14_settings_theme.png) | ![Journal](screenshots/13_activity.png) |
 
+| Mon profil (changement mdp + nom/prénom) | |
+|---|---|
+| ![Profil](screenshots/18_profile.png) | |
+
 ---
 
 ## Fonctionnalités
 
 | Fonctionnalité | Responsable | Auditeur |
 |----------------|:-----------:|:--------:|
+| Mon profil (nom, prénom, mot de passe) | ✓ | ✓ |
 | Consulter les habilitations | ✓ | ✓ |
 | Créer / modifier / supprimer | ✓ | — |
 | Pièce jointe preuve d'attestation | ✓ | — |
@@ -51,7 +56,7 @@ Application web de gestion des habilitations au sein d'une organisation. Remplac
 | Logo société (page login) | ✓ | — |
 | SSO Active Directory / LDAP | ✓ | — |
 | Thème de couleur personnalisable | ✓ | — |
-| Journal d'activité | ✓ | ✓ |
+| Journal d'activité | ✓ | — |
 | Effacement base habilitations (zone de danger) | ✓ | — |
 
 ## Stack technique
@@ -173,6 +178,15 @@ Configurer dans **Paramètres > Thème** :
 - **Couleur principale** : barre de navigation et boutons (teal, blue, indigo, purple, emerald, rose, sky, slate)
 - **Couleur secondaire** : accents (orange, amber, pink, violet…)
 - Le thème est persisté en base et s'applique à toute l'interface sans redémarrage
+
+## Profil utilisateur
+
+Chaque utilisateur (responsable ou auditeur) peut accéder à son profil via le lien dans la barre de navigation :
+
+- **Prénom / Nom** : renseignés une fois, ils s'affichent à la place du login dans la nav
+- **Changement de mot de passe** : nécessite la saisie du mot de passe actuel + confirmation
+
+Accès : `/users/me`
 
 ## Tableau de bord statistiques
 
