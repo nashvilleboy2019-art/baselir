@@ -62,11 +62,13 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 @app.on_event("startup")
 async def startup_event():
     with engine.connect() as conn:
-        for col, typedef in [
-            ("attestation_filename", "VARCHAR(255)"),
+        for table, col, typedef in [
+            ("habilitations", "attestation_filename", "VARCHAR(255)"),
+            ("users",         "nom",                 "VARCHAR(100)"),
+            ("users",         "prenom",              "VARCHAR(100)"),
         ]:
             try:
-                conn.execute(text(f"ALTER TABLE habilitations ADD COLUMN {col} {typedef}"))
+                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {typedef}"))
                 conn.commit()
             except Exception:
                 pass

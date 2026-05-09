@@ -70,10 +70,14 @@
       <a href="/guide" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'guide' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Guide</a>
     </div>
     <div class="flex items-center gap-3 text-sm shrink-0 ml-4">
-      <span class="opacity-80 whitespace-nowrap">
-        {{ request.session.get("username") }}
+      <a href="/users/me" class="opacity-80 hover:opacity-100 whitespace-nowrap">
+        {% if user and (user.prenom or user.nom) %}
+          {{ user.prenom or '' }} {{ user.nom or '' }}
+        {% else %}
+          {{ request.session.get("username") }}
+        {% endif %}
         <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-primary-500">{{ request.session.get("role") }}</span>
-      </span>
+      </a>
       <a href="/logout" class="px-3 py-1 bg-primary-600 hover:bg-primary-500 rounded text-sm whitespace-nowrap">Déconnexion</a>
     </div>
   </div>

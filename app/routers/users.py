@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app import models
-from app.auth import hash_password
-from app.utils import require_responsable, log_activity, set_flash, get_flash
+from app.auth import hash_password, verify_password
+from app.utils import require_login, require_responsable, log_activity, set_flash, get_flash
 from app.templates_config import templates
 
 router = APIRouter()
@@ -20,6 +20,52 @@ async def list_users(request: Request, db: Session = Depends(get_db)):
         "flash": get_flash(request),
         "users_list": users_list,
     })
+
+
+@router.get("/me", response_class=HTMLResponse)
+async def profile_page(request: Request, db: Session = Depends(get_db)):
+    user = require_login(request, db)
+    return templates.TemplateResponse(request, "users/profile.html", {
+        "user": user, "active": "profile", "flash": get_flash(request), "errors": {},
+    })
+
+
+@router.post("/me", response_class=HTMLResponse)
+async def update_profile(
+    request: Request, db: Session = Depends(get_db),
+    nom: str = Form(""),
+    prenom: str = Form(""),
+    current_password: str = Form(""),
+    new_password: str = Form(""),
+    confirm_password: str = Form(""),
+):
+    user = require_login(request, db)
+    errors = {}
+
+    if new_password:
+        if not current_password:
+            errors["current_password"] = "Saisissez votre mot de passe actuel."
+        elif not verify_password(current_password, user.password_hash):
+            errors["current_password"] = "Mot de passe actuel incorrect."
+        if len(new_password) < 6:
+            errors["new_password"] = "Minimum 6 caractères."
+        elif new_password != confirm_password:
+            errors["confirm_password"] = "Les mots de passe ne correspondent pas."
+
+    if errors:
+        return templates.TemplateResponse(request, "users/profile.html", {
+            "user": user, "active": "profile", "errors": errors,
+        })
+
+    user.nom = nom.strip() or None
+    user.prenom = prenom.strip() or None
+    if new_password:
+        user.password_hash = hash_password(new_password)
+    log_activity(db, user, "Modification profil")
+    db.commit()
+
+    set_flash(request, "Profil mis à jour.")
+    return RedirectResponse("/users/me", status_code=302)
 
 
 @router.get("/new", response_class=HTMLResponse)

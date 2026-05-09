@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Mon profil{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-gray-800 mb-1">Mon profil</h1>
+  <p class="text-sm text-gray-500 mb-6">Identifiant : <span class="font-medium text-gray-700">{{ user.username }}</span>
+    <span class="ml-2 text-xs px-2 py-0.5 rounded-full font-medium
+      {% if user.role == 'responsable' %}bg-teal-100 text-teal-700{% else %}bg-gray-100 text-gray-600{% endif %}">
+      {{ user.role }}
+    </span>
+  </p>
+
+  {% if flash %}
+  <div class="mb-4 px-4 py-2.5 rounded-lg text-sm
+    {% if flash.type == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
+    {{ flash.message }}
+  </div>
+  {% endif %}
+
+  <form method="post" action="/users/me" class="space-y-6">
+
+    <!-- Identité -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 class="font-semibold text-gray-700 mb-4">Identité</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Prénom</label>
+          <input type="text" name="prenom" value="{{ user.prenom or '' }}"
+                 placeholder="Votre prénom"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-400 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Nom</label>
+          <input type="text" name="nom" value="{{ user.nom or '' }}"
+                 placeholder="Votre nom"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-400 focus:outline-none">
+        </div>
+      </div>
+    </div>
+
+    <!-- Mot de passe -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 class="font-semibold text-gray-700 mb-1">Changer le mot de passe</h2>
+      <p class="text-xs text-gray-400 mb-4">Laissez vide pour conserver le mot de passe actuel.</p>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Mot de passe actuel</label>
+          <input type="password" name="current_password" autocomplete="current-password"
+                 class="w-full px-3 py-2 border {% if errors.current_password %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg text-sm focus:ring-2 focus:ring-teal-400 focus:outline-none">
+          {% if errors.current_password %}
+          <p class="text-xs text-red-600 mt-1">{{ errors.current_password }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Nouveau mot de passe</label>
+          <input type="password" name="new_password" autocomplete="new-password"
+                 class="w-full px-3 py-2 border {% if errors.new_password %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg text-sm focus:ring-2 focus:ring-teal-400 focus:outline-none">
+          {% if errors.new_password %}
+          <p class="text-xs text-red-600 mt-1">{{ errors.new_password }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Confirmer le nouveau mot de passe</label>
+          <input type="password" name="confirm_password" autocomplete="new-password"
+                 class="w-full px-3 py-2 border {% if errors.confirm_password %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg text-sm focus:ring-2 focus:ring-teal-400 focus:outline-none">
+          {% if errors.confirm_password %}
+          <p class="text-xs text-red-600 mt-1">{{ errors.confirm_password }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <button type="submit"
+            class="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition">
+      Enregistrer
+    </button>
+  </form>
+</div>
+{% endblock %}
