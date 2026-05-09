@@ -286,6 +286,32 @@ async def delete_logo(request: Request, db: Session = Depends(get_db)):
     return RedirectResponse("/admin/settings", status_code=302)
 
 
+@router.post("/settings/reset-habilitations")
+async def reset_habilitations(
+    request: Request, db: Session = Depends(get_db),
+    confirmation: str = Form(""),
+):
+    user = require_responsable(request, db)
+    if confirmation.strip().lower() != "je confirme l'effacement des habilitations":
+        set_flash(request, "Phrase de confirmation incorrecte. Aucune donnée supprimée.", "error")
+        return RedirectResponse("/admin/settings", status_code=302)
+
+    db.query(models.HabilitationHistory).delete(synchronize_session=False)
+    db.query(models.HabilitationCustomField).delete(synchronize_session=False)
+    db.query(models.Habilitation).delete(synchronize_session=False)
+    db.commit()
+
+    attestations_dir = os.path.join(UPLOADS_DIR, "attestations")
+    if os.path.exists(attestations_dir):
+        shutil.rmtree(attestations_dir)
+
+    log_activity(db, user, "RESET — toutes les habilitations supprimées")
+    db.commit()
+
+    set_flash(request, "Toutes les habilitations ont été supprimées.")
+    return RedirectResponse("/admin/settings", status_code=302)
+
+
 @router.post("/settings/theme")
 async def save_theme(
     request: Request, db: Session = Depends(get_db),

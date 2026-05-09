@@ -16,9 +16,9 @@ Application web de gestion des habilitations au sein d'une organisation. Remplac
 |---|---|
 | ![Login](screenshots/01_login.png) | ![Dashboard](screenshots/02_dashboard.png) |
 
-| Liste des habilitations | Détail d'une habilitation |
+| Statistiques cockpit | Détail d'une habilitation |
 |---|---|
-| ![Liste](screenshots/03_habilitations_list.png) | ![Détail](screenshots/04_habilitation_detail.png) |
+| ![Stats](screenshots/17_dashboard_stats.png) | ![Détail](screenshots/04_habilitation_detail.png) |
 
 | Formulaire de saisie | Audit — Écarts d'attestations |
 |---|---|
@@ -28,7 +28,7 @@ Application web de gestion des habilitations au sein d'une organisation. Remplac
 |---|---|
 | ![Référentiels](screenshots/09_referentiels.png) | ![Import](screenshots/11_import.png) |
 
-| Paramètres (thème + logo) | Journal d'activité |
+| Paramètres | Journal d'activité |
 |---|---|
 | ![Paramètres](screenshots/14_settings_theme.png) | ![Journal](screenshots/13_activity.png) |
 
@@ -40,9 +40,11 @@ Application web de gestion des habilitations au sein d'une organisation. Remplac
 |----------------|:-----------:|:--------:|
 | Consulter les habilitations | ✓ | ✓ |
 | Créer / modifier / supprimer | ✓ | — |
+| Pièce jointe preuve d'attestation | ✓ | — |
 | Historique des modifications | ✓ | ✓ |
 | Import CSV / Excel | ✓ | — |
 | Page Audit (écarts attestations) | ✓ | ✓ |
+| Tableau de bord statistiques cockpit | ✓ | ✓ |
 | Référentiels personnalisables | ✓ | — |
 | Champs personnalisés dynamiques | ✓ | — |
 | Gestion des utilisateurs | ✓ | — |
@@ -50,6 +52,7 @@ Application web de gestion des habilitations au sein d'une organisation. Remplac
 | SSO Active Directory / LDAP | ✓ | — |
 | Thème de couleur personnalisable | ✓ | — |
 | Journal d'activité | ✓ | ✓ |
+| Effacement base habilitations (zone de danger) | ✓ | — |
 
 ## Stack technique
 
@@ -137,6 +140,7 @@ BaseLIR/
 | Domaine | Périmètre fonctionnel |
 | Date d'octroi | Date d'attribution |
 | Date des attestations | Date limite — génère un écart si dépassée |
+| Preuve d'attestation | Pièce jointe (PDF, JPG, PNG, DOCX) pour l'auditabilité |
 | Champs perso. | Champs supplémentaires créés par l'admin |
 
 ## Champs personnalisés dynamiques
@@ -169,6 +173,22 @@ Configurer dans **Paramètres > Thème** :
 - **Couleur principale** : barre de navigation et boutons (teal, blue, indigo, purple, emerald, rose, sky, slate)
 - **Couleur secondaire** : accents (orange, amber, pink, violet…)
 - Le thème est persisté en base et s'applique à toute l'interface sans redémarrage
+
+## Tableau de bord statistiques
+
+L'onglet **Statistiques** du tableau de bord offre un cockpit de pilotage :
+
+- **KPIs** : gestionnaires actifs, sociétés représentées, domaines actifs, taux de conformité attestations
+- **Graphiques Chart.js** : répartition par gestionnaire (barres), par société (barres), par domaine (donut), par statut (donut)
+- **Tableaux de détail** : top gestionnaires / sociétés / domaines avec mini-barres de progression
+
+## Preuve d'attestation
+
+Chaque fiche d'habilitation dispose d'une section **Preuve d'attestation** permettant de joindre un document justificatif (PDF, JPG, PNG, DOCX). Le fichier est stocké dans `uploads/attestations/` et accessible via un lien direct depuis la fiche. Cette fonctionnalité est réservée aux responsables.
+
+## Zone de danger
+
+Dans **Paramètres**, la section **Zone de danger** permet aux responsables d'effacer l'intégralité des habilitations (fiches, historique, champs perso, pièces jointes) tout en conservant les référentiels et comptes utilisateurs. Un modal de confirmation exige la saisie exacte de la phrase `je confirme l'effacement des habilitations`.
 
 ## Données de démonstration
 

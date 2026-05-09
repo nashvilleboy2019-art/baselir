@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from datetime import date
 import json
+import os
+import shutil
 
 from app.database import get_db
 from app import models
@@ -12,6 +14,13 @@ from app.utils import (require_login, require_responsable, log_activity, log_his
 from app.templates_config import templates
 
 router = APIRouter()
+
+UPLOADS_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "uploads"
+)
+ATTESTATIONS_DIR = os.path.join(UPLOADS_DIR, "attestations")
+ALLOWED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".docx"}
 
 
 def _get_referentiels(db: Session):
@@ -231,6 +240,63 @@ async def delete_habilitation(hab_id: int, request: Request, db: Session = Depen
     db.commit()
     set_flash(request, f"Habilitation « {nom} » supprimée.")
     return RedirectResponse("/habilitations/", status_code=302)
+
+
+@router.post("/{hab_id}/upload-attestation")
+async def upload_attestation(
+    hab_id: int, request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    user = require_responsable(request, db)
+    h = db.query(models.Habilitation).filter(models.Habilitation.id == hab_id).first()
+    if not h:
+        raise HTTPException(status_code=404)
+
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        set_flash(request, "Format non autorisé. Utilisez PDF, JPG, PNG ou DOCX.", "error")
+        return RedirectResponse(f"/habilitations/{hab_id}", status_code=302)
+
+    os.makedirs(ATTESTATIONS_DIR, exist_ok=True)
+    safe_name = f"hab_{hab_id}{ext}"
+    dest = os.path.join(ATTESTATIONS_DIR, safe_name)
+
+    if h.attestation_filename and h.attestation_filename != safe_name:
+        old = os.path.join(ATTESTATIONS_DIR, h.attestation_filename)
+        if os.path.exists(old):
+            os.remove(old)
+
+    with open(dest, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    h.attestation_filename = safe_name
+    h.updated_by = user.id
+    log_activity(db, user, "Upload preuve attestation", "habilitation", hab_id, h.nom_prenom)
+    db.commit()
+
+    set_flash(request, "Preuve d'attestation enregistrée.")
+    return RedirectResponse(f"/habilitations/{hab_id}", status_code=302)
+
+
+@router.post("/{hab_id}/delete-attestation")
+async def delete_attestation(hab_id: int, request: Request, db: Session = Depends(get_db)):
+    user = require_responsable(request, db)
+    h = db.query(models.Habilitation).filter(models.Habilitation.id == hab_id).first()
+    if not h:
+        raise HTTPException(status_code=404)
+
+    if h.attestation_filename:
+        path = os.path.join(ATTESTATIONS_DIR, h.attestation_filename)
+        if os.path.exists(path):
+            os.remove(path)
+        h.attestation_filename = None
+        h.updated_by = user.id
+        log_activity(db, user, "Suppression preuve attestation", "habilitation", hab_id, h.nom_prenom)
+        db.commit()
+
+    set_flash(request, "Preuve d'attestation supprimée.")
+    return RedirectResponse(f"/habilitations/{hab_id}", status_code=302)
 
 
 @router.get("/{hab_id}/history", response_class=HTMLResponse)

@@ -121,6 +121,7 @@ class Habilitation(Base):
 
     date_octroi = Column(Date, nullable=True)
     date_attestation = Column(Date, nullable=True)
+    attestation_filename = Column(String(255), nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

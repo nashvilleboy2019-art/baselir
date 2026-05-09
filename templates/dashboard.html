@@ -4,172 +4,511 @@
 <div class="max-w-7xl mx-auto px-4 py-6">
   <h1 class="text-2xl font-bold text-gray-800 mb-6">Tableau de bord</h1>
 
-  <!-- KPI Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500">Total habilitations</p>
-          <p class="text-3xl font-bold text-gray-800 mt-1">{{ total }}</p>
-        </div>
-        <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500">Écarts (attestations)</p>
-          <p class="text-3xl font-bold {% if expired_count > 0 %}text-red-600{% else %}text-green-600{% endif %} mt-1">{{ expired_count }}</p>
-        </div>
-        <div class="w-12 h-12 {% if expired_count > 0 %}bg-red-100{% else %}bg-green-100{% endif %} rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 {% if expired_count > 0 %}text-red-600{% else %}text-green-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-      </div>
-      {% if expired_count > 0 %}
-      <a href="/audit/" class="text-xs text-red-600 hover:underline mt-2 block">Voir les écarts →</a>
-      {% endif %}
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500">Date du jour</p>
-          <p class="text-xl font-bold text-gray-800 mt-1">{{ today.strftime('%d/%m/%Y') }}</p>
-        </div>
-        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-500">Accès rapide</p>
-          <a href="/habilitations/new" class="inline-block mt-2 px-4 py-2 bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700 font-medium">
-            + Nouvelle habilitation
-          </a>
-        </div>
-        <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-        </div>
-      </div>
-    </div>
+  <!-- Tab Navigation -->
+  <div class="flex gap-0 border-b border-gray-200 mb-6">
+    <button onclick="switchTab('general')" id="tab-btn-general"
+      class="px-5 py-2.5 text-sm font-medium -mb-px border-b-2 border-teal-600 text-teal-700 bg-transparent">
+      Vue générale
+    </button>
+    <button onclick="switchTab('stats')" id="tab-btn-stats"
+      class="px-5 py-2.5 text-sm font-medium -mb-px border-b-2 border-transparent text-gray-500 bg-transparent">
+      Statistiques
+    </button>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Par domaine -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <h2 class="font-semibold text-gray-700 mb-4">Habilitations par domaine</h2>
-      {% if by_domaine %}
-      <div class="space-y-2">
-        {% for label, count in by_domaine %}
-        {% if count > 0 %}
-        <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-600 w-36 truncate">{{ label }}</span>
-          <div class="flex-1 bg-gray-100 rounded-full h-2">
-            <div class="bg-teal-500 h-2 rounded-full" style="width: {{ (count / total * 100)|int if total > 0 else 0 }}%"></div>
-          </div>
-          <span class="text-sm font-medium text-gray-700 w-6 text-right">{{ count }}</span>
-        </div>
-        {% endif %}
-        {% endfor %}
-      </div>
-      {% else %}
-      <p class="text-sm text-gray-400">Aucune donnée</p>
-      {% endif %}
-    </div>
+  <!-- ===== Onglet : Vue générale ===== -->
+  <div id="tab-general">
 
-    <!-- Par statut -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <h2 class="font-semibold text-gray-700 mb-4">Par statut</h2>
-      {% if by_statut %}
-      <div class="space-y-2">
-        {% for label, color, count in by_statut %}
-        {% if count > 0 %}
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <div class="flex items-center justify-between">
-          <span class="badge-{{ color }} text-xs px-2 py-1 rounded-full font-medium">{{ label }}</span>
-          <span class="text-sm font-semibold text-gray-700">{{ count }}</span>
+          <div>
+            <p class="text-sm text-gray-500">Total habilitations</p>
+            <p class="text-3xl font-bold text-gray-800 mt-1">{{ total }}</p>
+          </div>
+          <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
         </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Écarts (attestations)</p>
+            <p class="text-3xl font-bold {% if expired_count > 0 %}text-red-600{% else %}text-green-600{% endif %} mt-1">{{ expired_count }}</p>
+          </div>
+          <div class="w-12 h-12 {% if expired_count > 0 %}bg-red-100{% else %}bg-green-100{% endif %} rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 {% if expired_count > 0 %}text-red-600{% else %}text-green-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+        {% if expired_count > 0 %}
+        <a href="/audit/" class="text-xs text-red-600 hover:underline mt-2 block">Voir les écarts →</a>
         {% endif %}
-        {% endfor %}
       </div>
-      {% else %}
-      <p class="text-sm text-gray-400">Aucune donnée</p>
-      {% endif %}
-    </div>
 
-    <!-- Activité récente -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <h2 class="font-semibold text-gray-700 mb-4">Activité récente</h2>
-      {% if recent_activity %}
-      <div class="space-y-2">
-        {% for log in recent_activity %}
-        <div class="text-xs text-gray-600 flex items-start gap-2">
-          <span class="text-gray-400 shrink-0">{{ log.timestamp.strftime('%d/%m %H:%M') }}</span>
-          <span class="font-medium text-gray-700">{{ log.username }}</span>
-          <span>{{ log.action }}</span>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Date du jour</p>
+            <p class="text-xl font-bold text-gray-800 mt-1">{{ today.strftime('%d/%m/%Y') }}</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
         </div>
-        {% endfor %}
       </div>
-      <a href="/activity/" class="text-xs text-teal-600 hover:underline mt-3 block">Voir tout le journal →</a>
-      {% else %}
-      <p class="text-sm text-gray-400">Aucune activité</p>
-      {% endif %}
-    </div>
-  </div>
 
-  <!-- Habilitations récentes -->
-  {% if recent %}
-  <div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="font-semibold text-gray-700">Dernières habilitations modifiées</h2>
-      <a href="/habilitations/" class="text-sm text-teal-600 hover:underline">Voir toutes →</a>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Accès rapide</p>
+            <a href="/habilitations/new" class="inline-block mt-2 px-4 py-2 bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700 font-medium">
+              + Nouvelle habilitation
+            </a>
+          </div>
+          <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="text-left text-xs text-gray-500 border-b border-gray-100">
-            <th class="pb-2 pr-4">Nom / Prénom</th>
-            <th class="pb-2 pr-4">Rôle</th>
-            <th class="pb-2 pr-4">Domaine</th>
-            <th class="pb-2 pr-4">Statut</th>
-            <th class="pb-2">Attestation</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-50">
-          {% for h in recent %}
-          <tr class="hover:bg-gray-50">
-            <td class="py-2 pr-4">
-              <a href="/habilitations/{{ h.id }}" class="font-medium text-teal-700 hover:underline">{{ h.nom_prenom }}</a>
-            </td>
-            <td class="py-2 pr-4 text-gray-600">{{ h.role.label if h.role else '—' }}</td>
-            <td class="py-2 pr-4 text-gray-600">{{ h.domaine.label if h.domaine else '—' }}</td>
-            <td class="py-2 pr-4">
-              {% if h.statut %}
-              <span class="badge-{{ h.statut.color }} text-xs px-2 py-0.5 rounded-full">{{ h.statut.label }}</span>
-              {% else %}—{% endif %}
-            </td>
-            <td class="py-2 {% if h.date_attestation and h.date_attestation < today %}text-red-600 font-medium{% else %}text-gray-600{% endif %}">
-              {{ h.date_attestation.strftime('%d/%m/%Y') if h.date_attestation else '—' }}
-            </td>
-          </tr>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Par domaine -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-4">Habilitations par domaine</h2>
+        {% if by_domaine %}
+        <div class="space-y-2">
+          {% for label, count in by_domaine %}
+          {% if count > 0 %}
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-600 w-36 truncate">{{ label }}</span>
+            <div class="flex-1 bg-gray-100 rounded-full h-2">
+              <div class="bg-teal-500 h-2 rounded-full" style="width: {{ (count / total * 100)|int if total > 0 else 0 }}%"></div>
+            </div>
+            <span class="text-sm font-medium text-gray-700 w-6 text-right">{{ count }}</span>
+          </div>
+          {% endif %}
           {% endfor %}
-        </tbody>
-      </table>
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400">Aucune donnée</p>
+        {% endif %}
+      </div>
+
+      <!-- Par statut -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-4">Par statut</h2>
+        {% if by_statut %}
+        <div class="space-y-2">
+          {% for label, color, count in by_statut %}
+          {% if count > 0 %}
+          <div class="flex items-center justify-between">
+            <span class="badge-{{ color }} text-xs px-2 py-1 rounded-full font-medium">{{ label }}</span>
+            <span class="text-sm font-semibold text-gray-700">{{ count }}</span>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400">Aucune donnée</p>
+        {% endif %}
+      </div>
+
+      <!-- Activité récente -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-4">Activité récente</h2>
+        {% if recent_activity %}
+        <div class="space-y-2">
+          {% for log in recent_activity %}
+          <div class="text-xs text-gray-600 flex items-start gap-2">
+            <span class="text-gray-400 shrink-0">{{ log.timestamp.strftime('%d/%m %H:%M') }}</span>
+            <span class="font-medium text-gray-700">{{ log.username }}</span>
+            <span>{{ log.action }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <a href="/activity/" class="text-xs text-teal-600 hover:underline mt-3 block">Voir tout le journal →</a>
+        {% else %}
+        <p class="text-sm text-gray-400">Aucune activité</p>
+        {% endif %}
+      </div>
     </div>
-  </div>
-  {% endif %}
+
+    <!-- Habilitations récentes -->
+    {% if recent %}
+    <div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-gray-700">Dernières habilitations modifiées</h2>
+        <a href="/habilitations/" class="text-sm text-teal-600 hover:underline">Voir toutes →</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-xs text-gray-500 border-b border-gray-100">
+              <th class="pb-2 pr-4">Nom / Prénom</th>
+              <th class="pb-2 pr-4">Rôle</th>
+              <th class="pb-2 pr-4">Domaine</th>
+              <th class="pb-2 pr-4">Statut</th>
+              <th class="pb-2">Attestation</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            {% for h in recent %}
+            <tr class="hover:bg-gray-50">
+              <td class="py-2 pr-4">
+                <a href="/habilitations/{{ h.id }}" class="font-medium text-teal-700 hover:underline">{{ h.nom_prenom }}</a>
+              </td>
+              <td class="py-2 pr-4 text-gray-600">{{ h.role.label if h.role else '—' }}</td>
+              <td class="py-2 pr-4 text-gray-600">{{ h.domaine.label if h.domaine else '—' }}</td>
+              <td class="py-2 pr-4">
+                {% if h.statut %}
+                <span class="badge-{{ h.statut.color }} text-xs px-2 py-0.5 rounded-full">{{ h.statut.label }}</span>
+                {% else %}—{% endif %}
+              </td>
+              <td class="py-2 {% if h.date_attestation and h.date_attestation < today %}text-red-600 font-medium{% else %}text-gray-600{% endif %}">
+                {{ h.date_attestation.strftime('%d/%m/%Y') if h.date_attestation else '—' }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+  </div><!-- /tab-general -->
+
+  <!-- ===== Onglet : Statistiques ===== -->
+  <div id="tab-stats" class="hidden">
+
+    <!-- KPI cockpit -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+      <!-- Gestionnaires actifs -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Gestionnaires actifs</p>
+            <p class="text-3xl font-bold text-purple-600 mt-1">{{ users_actifs }}</p>
+            <p class="text-xs text-gray-400 mt-1">utilisateurs enregistrés</p>
+          </div>
+          <div class="w-11 h-11 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sociétés -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Sociétés</p>
+            <p class="text-3xl font-bold text-blue-600 mt-1">{{ societes_actives }}</p>
+            <p class="text-xs text-gray-400 mt-1">sociétés représentées</p>
+          </div>
+          <div class="w-11 h-11 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Domaines actifs -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Domaines actifs</p>
+            <p class="text-3xl font-bold text-teal-600 mt-1">{{ domaines_actifs }}</p>
+            <p class="text-xs text-gray-400 mt-1">domaines couverts</p>
+          </div>
+          <div class="w-11 h-11 bg-teal-100 rounded-lg flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Taux de conformité -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Taux de conformité</p>
+            <p class="text-3xl font-bold {% if taux_conformite >= 80 %}text-green-600{% elif taux_conformite >= 60 %}text-orange-500{% else %}text-red-600{% endif %} mt-1">
+              {{ taux_conformite }}%
+            </p>
+            <p class="text-xs text-gray-400 mt-1">{{ total - expired_count }}/{{ total }} conformes</p>
+          </div>
+          <div class="w-11 h-11 {% if taux_conformite >= 80 %}bg-green-100{% elif taux_conformite >= 60 %}bg-orange-100{% else %}bg-red-100{% endif %} rounded-lg flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 {% if taux_conformite >= 80 %}text-green-600{% elif taux_conformite >= 60 %}text-orange-500{% else %}text-red-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mt-3 bg-gray-100 rounded-full h-1.5">
+          <div class="{% if taux_conformite >= 80 %}bg-green-500{% elif taux_conformite >= 60 %}bg-orange-400{% else %}bg-red-500{% endif %} h-1.5 rounded-full transition-all" style="width: {{ taux_conformite }}%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graphiques ligne 1 : Rôle + Société -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-1">Par gestionnaire</h2>
+        <p class="text-xs text-gray-400 mb-4">Habilitations saisies par utilisateur enregistré</p>
+        {% if by_user %}
+        <div class="relative h-64">
+          <canvas id="chartUser"></canvas>
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400 mt-8 text-center">Aucune donnée</p>
+        {% endif %}
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-1">Par Société</h2>
+        <p class="text-xs text-gray-400 mb-4">Répartition des habilitations par entité légale</p>
+        {% if by_societe %}
+        <div class="relative h-64">
+          <canvas id="chartSociete"></canvas>
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400 mt-8 text-center">Aucune donnée</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Graphiques ligne 2 : Domaine + Statut -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-1">Par Domaine</h2>
+        <p class="text-xs text-gray-400 mb-4">Distribution par domaine fonctionnel</p>
+        {% if by_domaine %}
+        <div class="relative h-60">
+          <canvas id="chartDomaine"></canvas>
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400 mt-8 text-center">Aucune donnée</p>
+        {% endif %}
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-1">Par Statut</h2>
+        <p class="text-xs text-gray-400 mb-4">Répartition selon le statut d'habilitation</p>
+        {% if by_statut %}
+        <div class="relative h-60">
+          <canvas id="chartStatut"></canvas>
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400 mt-8 text-center">Aucune donnée</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Tableaux de détail -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Gestionnaires -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-3">Détail par gestionnaire</h2>
+        <div class="space-y-2">
+          {% for username, urole, count in by_user %}
+          {% if count > 0 %}
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-gray-700 font-medium truncate">{{ username }}</span>
+              <span class="text-xs px-1.5 py-0.5 rounded {% if urole == 'responsable' %}bg-teal-100 text-teal-700{% else %}bg-gray-100 text-gray-500{% endif %} shrink-0">{{ urole }}</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 ml-2">
+              <div class="w-16 bg-gray-100 rounded-full h-1.5">
+                <div class="bg-purple-400 h-1.5 rounded-full" style="width: {{ (count / total * 100)|int if total > 0 else 0 }}%"></div>
+              </div>
+              <span class="font-semibold text-gray-700 w-6 text-right">{{ count }}</span>
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Top Sociétés -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-3">Détail par société</h2>
+        <div class="space-y-1.5">
+          {% for label, count in by_societe %}
+          {% if count > 0 %}
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600 truncate pr-2">{{ label }}</span>
+            <div class="flex items-center gap-2 shrink-0">
+              <div class="w-20 bg-gray-100 rounded-full h-1.5">
+                <div class="bg-blue-400 h-1.5 rounded-full" style="width: {{ (count / total * 100)|int if total > 0 else 0 }}%"></div>
+              </div>
+              <span class="font-semibold text-gray-700 w-6 text-right">{{ count }}</span>
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Top Domaines -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-700 mb-3">Détail par domaine</h2>
+        <div class="space-y-1.5">
+          {% for label, count in by_domaine %}
+          {% if count > 0 %}
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600 truncate pr-2">{{ label }}</span>
+            <div class="flex items-center gap-2 shrink-0">
+              <div class="w-20 bg-gray-100 rounded-full h-1.5">
+                <div class="bg-teal-400 h-1.5 rounded-full" style="width: {{ (count / total * 100)|int if total > 0 else 0 }}%"></div>
+              </div>
+              <span class="font-semibold text-gray-700 w-6 text-right">{{ count }}</span>
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /tab-stats -->
+
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+const TAB_ACTIVE   = 'px-5 py-2.5 text-sm font-medium -mb-px border-b-2 border-teal-600 text-teal-700 bg-transparent';
+const TAB_INACTIVE = 'px-5 py-2.5 text-sm font-medium -mb-px border-b-2 border-transparent text-gray-500 bg-transparent';
+
+let chartsInitialized = false;
+
+function switchTab(name) {
+  ['general', 'stats'].forEach(t => {
+    document.getElementById('tab-' + t).classList.add('hidden');
+    document.getElementById('tab-btn-' + t).className = TAB_INACTIVE;
+  });
+  document.getElementById('tab-' + name).classList.remove('hidden');
+  document.getElementById('tab-btn-' + name).className = TAB_ACTIVE;
+  history.replaceState(null, '', location.pathname + (name === 'stats' ? '#stats' : ''));
+  if (name === 'stats' && !chartsInitialized) {
+    initCharts();
+    chartsInitialized = true;
+  }
+}
+
+if (location.hash === '#stats') switchTab('stats');
+
+function initCharts() {
+  const barOpts = (axis) => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: axis,
+    plugins: { legend: { display: false }, tooltip: { callbacks: {
+      label: ctx => ' ' + ctx.parsed[axis === 'y' ? 'x' : 'y'] + ' habilitation(s)'
+    }}},
+    scales: {
+      x: { grid: { color: '#f1f5f9' }, ticks: { precision: 0, font: { size: 11 } } },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  });
+
+  const donutOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } },
+      tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ' : ' + ctx.parsed + ' hab.' } }
+    },
+    cutout: '62%'
+  };
+
+  // --- Par gestionnaire (barres horizontales) ---
+  const userData = {{ stats_user | safe }};
+  if (userData.length && document.getElementById('chartUser')) {
+    const userColors = userData.map(d =>
+      d.role === 'responsable' ? 'rgba(13,148,136,0.75)' : 'rgba(139,92,246,0.72)'
+    );
+    const userBorders = userData.map(d =>
+      d.role === 'responsable' ? 'rgb(13,148,136)' : 'rgb(139,92,246)'
+    );
+    new Chart(document.getElementById('chartUser'), {
+      type: 'bar',
+      data: {
+        labels: userData.map(d => d.label),
+        datasets: [{ data: userData.map(d => d.count),
+          backgroundColor: userColors, borderColor: userBorders,
+          borderWidth: 1, borderRadius: 4 }]
+      },
+      options: barOpts('y')
+    });
+  }
+
+  // --- Par Société (barres horizontales) ---
+  const socData = {{ stats_societe | safe }};
+  if (socData.length && document.getElementById('chartSociete')) {
+    new Chart(document.getElementById('chartSociete'), {
+      type: 'bar',
+      data: {
+        labels: socData.map(d => d.label),
+        datasets: [{ data: socData.map(d => d.count),
+          backgroundColor: 'rgba(59,130,246,0.72)', borderColor: 'rgb(59,130,246)',
+          borderWidth: 1, borderRadius: 4 }]
+      },
+      options: barOpts('y')
+    });
+  }
+
+  // --- Par Domaine (donut) ---
+  const domData = {{ stats_domaine | safe }};
+  const domColors = ['#0d9488','#14b8a6','#2dd4bf','#3b82f6','#60a5fa','#8b5cf6','#a78bfa','#f59e0b','#f97316','#ec4899','#10b981','#6366f1'];
+  if (domData.length && document.getElementById('chartDomaine')) {
+    new Chart(document.getElementById('chartDomaine'), {
+      type: 'doughnut',
+      data: {
+        labels: domData.map(d => d.label),
+        datasets: [{ data: domData.map(d => d.count),
+          backgroundColor: domColors, borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: donutOpts
+    });
+  }
+
+  // --- Par Statut (donut) ---
+  const statData = {{ stats_statut | safe }};
+  const colorMap = { green:'#16a34a', red:'#dc2626', yellow:'#d97706', blue:'#2563eb',
+                     purple:'#7c3aed', orange:'#ea580c', gray:'#6b7280', teal:'#0d9488', pink:'#db2777' };
+  if (statData.length && document.getElementById('chartStatut')) {
+    new Chart(document.getElementById('chartStatut'), {
+      type: 'doughnut',
+      data: {
+        labels: statData.map(d => d.label),
+        datasets: [{ data: statData.map(d => d.count),
+          backgroundColor: statData.map(d => colorMap[d.color] || '#6b7280'),
+          borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: donutOpts
+    });
+  }
+}
+</script>
 {% endblock %}

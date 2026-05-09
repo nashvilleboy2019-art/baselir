@@ -5,9 +5,11 @@ from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import date
+import json
 import os
 
 from app.database import get_db, engine
+from sqlalchemy import text
 from app import models, auth, theme_cache
 from app.routers import habilitations, admin, audit, users, activity, import_hab
 from app.templates_config import templates
@@ -59,6 +61,16 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 @app.on_event("startup")
 async def startup_event():
+    with engine.connect() as conn:
+        for col, typedef in [
+            ("attestation_filename", "VARCHAR(255)"),
+        ]:
+            try:
+                conn.execute(text(f"ALTER TABLE habilitations ADD COLUMN {col} {typedef}"))
+                conn.commit()
+            except Exception:
+                pass
+
     db = next(get_db())
     try:
         auth.create_default_data(db)
@@ -89,15 +101,42 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         .outerjoin(models.Habilitation, models.Habilitation.statut_id == models.RefStatut.id)
         .group_by(models.RefStatut.label, models.RefStatut.color).all()
     )
+    by_user = (
+        db.query(models.User.username, models.User.role, func.count(models.Habilitation.id))
+        .outerjoin(models.Habilitation, models.Habilitation.created_by == models.User.id)
+        .group_by(models.User.username, models.User.role)
+        .order_by(func.count(models.Habilitation.id).desc()).all()
+    )
+    by_societe = (
+        db.query(models.RefSociete.label, func.count(models.Habilitation.id))
+        .outerjoin(models.Habilitation, models.Habilitation.societe_id == models.RefSociete.id)
+        .group_by(models.RefSociete.label)
+        .order_by(func.count(models.Habilitation.id).desc()).all()
+    )
     recent = (db.query(models.Habilitation)
               .order_by(models.Habilitation.updated_at.desc()).limit(10).all())
     recent_activity = (db.query(models.ActivityLog)
                        .order_by(models.ActivityLog.timestamp.desc()).limit(10).all())
 
+    users_actifs = sum(1 for _, _, c in by_user if c > 0)
+    societes_actives = sum(1 for _, c in by_societe if c > 0)
+    domaines_actifs = sum(1 for _, c in by_domaine if c > 0)
+    taux_conformite = round((total - expired_count) / total * 100) if total > 0 else 100
+
+    stats_user = json.dumps([{"label": r[0], "role": r[1], "count": r[2]} for r in by_user if r[2] > 0])
+    stats_societe = json.dumps([{"label": r[0], "count": r[1]} for r in by_societe if r[1] > 0])
+    stats_domaine = json.dumps([{"label": r[0], "count": r[1]} for r in by_domaine if r[1] > 0])
+    stats_statut = json.dumps([{"label": r[0], "color": r[1], "count": r[2]} for r in by_statut if r[2] > 0])
+
     return templates.TemplateResponse(request, "dashboard.html", {
         "user": user, "active": "dashboard", "flash": get_flash(request),
         "total": total, "expired_count": expired_count,
         "by_domaine": by_domaine, "by_statut": by_statut,
+        "by_user": by_user, "by_societe": by_societe,
+        "users_actifs": users_actifs, "societes_actives": societes_actives,
+        "domaines_actifs": domaines_actifs, "taux_conformite": taux_conformite,
+        "stats_user": stats_user, "stats_societe": stats_societe,
+        "stats_domaine": stats_domaine, "stats_statut": stats_statut,
         "recent": recent, "recent_activity": recent_activity, "today": today,
     })
 
