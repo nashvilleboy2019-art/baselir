@@ -62,6 +62,7 @@
       <a href="/import/" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'import' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Import</a>
       <a href="/admin/referentiels" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'admin' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Référentiels</a>
       <a href="/admin/settings" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'settings' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Paramètres</a>
+      <a href="/admin/api-keys" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'api_keys' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">API</a>
       <a href="/users/" class="px-3 py-1 rounded whitespace-nowrap {% if active == 'users' %}bg-primary-900{% else %}hover:bg-primary-600{% endif %}">Utilisateurs</a>
       {% endif %}
       {% if request.session.get("role") == "responsable" %}

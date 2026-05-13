@@ -11,7 +11,7 @@ import os
 from app.database import get_db, engine
 from sqlalchemy import text
 from app import models, auth, theme_cache
-from app.routers import habilitations, admin, audit, users, activity, import_hab
+from app.routers import habilitations, admin, audit, users, activity, import_hab, api_v1
 from app.templates_config import templates
 from app.utils import get_flash, log_activity, require_login, get_config
 
@@ -39,6 +39,7 @@ app.include_router(audit.router, prefix="/audit")
 app.include_router(users.router, prefix="/users")
 app.include_router(activity.router, prefix="/activity")
 app.include_router(import_hab.router, prefix="/import")
+app.include_router(api_v1.router, prefix="/api/v1", tags=["API v1"])
 
 
 @app.exception_handler(HTTPException)

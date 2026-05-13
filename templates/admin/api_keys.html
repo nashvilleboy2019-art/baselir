@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Clés API{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-gray-800 mb-1">Clés API</h1>
+  <p class="text-sm text-gray-500 mb-6">Gérez les clés d'accès pour les applications externes (lecture seule).</p>
+
+  {% if new_api_key %}
+  {% set raw_key = new_api_key %}
+  {% set key_name = new_api_key_name %}
+  <div class="bg-green-50 border border-green-200 rounded-xl p-5 mb-6">
+    <div class="flex items-start gap-3">
+      <svg class="w-5 h-5 text-green-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <div class="flex-1">
+        <p class="font-semibold text-green-800 mb-1">Clé « {{ key_name }} » créée — copiez-la maintenant</p>
+        <p class="text-xs text-green-700 mb-3">Elle ne sera plus affichée après cette page.</p>
+        <div class="flex items-center gap-2">
+          <code id="raw-key" class="flex-1 bg-white border border-green-300 rounded-lg px-3 py-2 text-sm font-mono text-gray-800 select-all break-all">{{ raw_key }}</code>
+          <button onclick="copyKey()" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg font-medium transition whitespace-nowrap">
+            Copier
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function copyKey() {
+      navigator.clipboard.writeText(document.getElementById('raw-key').textContent.trim());
+      const btn = event.target;
+      btn.textContent = 'Copié !';
+      setTimeout(() => btn.textContent = 'Copier', 2000);
+    }
+  </script>
+  {% endif %}
+
+  <!-- Créer une nouvelle clé -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+    <h2 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+      </svg>
+      Créer une nouvelle clé
+    </h2>
+    <form method="post" action="/admin/api-keys/create" class="flex items-end gap-3">
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nom de l'application cliente</label>
+        <input type="text" name="name" required placeholder="ex: plandecontrole, reporting-rh…"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400">
+      </div>
+      <button type="submit"
+              class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition whitespace-nowrap">
+        Générer la clé
+      </button>
+    </form>
+  </div>
+
+  <!-- Liste des clés -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100">
+      <h2 class="font-semibold text-gray-700">Clés existantes</h2>
+    </div>
+    {% if keys %}
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
+        <tr>
+          <th class="px-6 py-3 text-left">Nom</th>
+          <th class="px-6 py-3 text-left">Préfixe</th>
+          <th class="px-6 py-3 text-left">Statut</th>
+          <th class="px-6 py-3 text-left">Créée le</th>
+          <th class="px-6 py-3 text-left">Dernière utilisation</th>
+          <th class="px-6 py-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for key in keys %}
+        <tr class="{% if not key.active %}bg-gray-50 opacity-60{% else %}hover:bg-gray-50{% endif %}">
+          <td class="px-6 py-3 font-medium text-gray-800">{{ key.name }}</td>
+          <td class="px-6 py-3 font-mono text-gray-500">{{ key.key_prefix }}****</td>
+          <td class="px-6 py-3">
+            {% if key.active %}
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold badge-green">Active</span>
+            {% else %}
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold badge-gray">Révoquée</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-3 text-gray-500">
+            {{ key.created_at.strftime('%d/%m/%Y') if key.created_at else '—' }}
+            {% if key.creator %}
+            <span class="text-xs text-gray-400">par {{ key.creator.username }}</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-3 text-gray-500">
+            {{ key.last_used_at.strftime('%d/%m/%Y %H:%M') if key.last_used_at else 'Jamais' }}
+          </td>
+          <td class="px-6 py-3 text-right">
+            <div class="flex justify-end gap-2">
+              {% if key.active %}
+              <form method="post" action="/admin/api-keys/{{ key.id }}/revoke"
+                    onsubmit="return confirm('Révoquer la clé « {{ key.name }} » ? Les appels API utilisant cette clé échoueront immédiatement.')">
+                <button type="submit"
+                        class="px-3 py-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg font-medium transition">
+                  Révoquer
+                </button>
+              </form>
+              {% endif %}
+              <form method="post" action="/admin/api-keys/{{ key.id }}/delete"
+                    onsubmit="return confirm('Supprimer définitivement la clé « {{ key.name }} » ?')">
+                <button type="submit"
+                        class="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-800 rounded-lg font-medium transition">
+                  Supprimer
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="px-6 py-10 text-center text-gray-400 text-sm">
+      Aucune clé API créée pour l'instant.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Documentation rapide -->
+  <div class="bg-gray-50 rounded-xl border border-gray-200 p-6 mt-6">
+    <h2 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+      </svg>
+      Utilisation de l'API
+    </h2>
+    <p class="text-xs text-gray-500 mb-3">Passez la clé dans le header <code class="bg-white border border-gray-200 rounded px-1">X-API-Key</code> de chaque requête.</p>
+    <div class="space-y-3">
+      <div>
+        <p class="text-xs font-semibold text-gray-600 mb-1">Lister les habilitations</p>
+        <code class="block bg-gray-800 text-green-400 text-xs rounded-lg px-4 py-3 overflow-x-auto">GET {{ request.base_url }}api/v1/habilitations?q=dupont&amp;statut_id=1&amp;page=1
+X-API-Key: lir_xxxx...</code>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-gray-600 mb-1">Détail d'une habilitation</p>
+        <code class="block bg-gray-800 text-green-400 text-xs rounded-lg px-4 py-3 overflow-x-auto">GET {{ request.base_url }}api/v1/habilitations/{id}
+X-API-Key: lir_xxxx...</code>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-gray-600 mb-1">Référentiels (statuts, domaines, services…)</p>
+        <code class="block bg-gray-800 text-green-400 text-xs rounded-lg px-4 py-3 overflow-x-auto">GET {{ request.base_url }}api/v1/referentiels
+X-API-Key: lir_xxxx...</code>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-gray-600 mb-1">Documentation interactive</p>
+        <a href="/docs" target="_blank" class="text-xs text-primary-600 hover:underline">{{ request.base_url }}docs</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

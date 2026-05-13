@@ -312,6 +312,74 @@ async def reset_habilitations(
     return RedirectResponse("/admin/settings", status_code=302)
 
 
+# ── API Keys ───────────────────────────────────────────────────────────────
+
+@router.get("/api-keys", response_class=HTMLResponse)
+async def api_keys_page(request: Request, db: Session = Depends(get_db)):
+    user = require_responsable(request, db)
+    keys = db.query(models.APIKey).order_by(models.APIKey.created_at.desc()).all()
+    new_api_key = request.session.pop("new_api_key", None)
+    new_api_key_name = request.session.pop("new_api_key_name", None)
+    return templates.TemplateResponse(request, "admin/api_keys.html", {
+        "user": user, "active": "api_keys", "flash": get_flash(request), "keys": keys,
+        "new_api_key": new_api_key, "new_api_key_name": new_api_key_name,
+    })
+
+
+@router.post("/api-keys/create")
+async def create_api_key(
+    request: Request, db: Session = Depends(get_db),
+    name: str = Form(...),
+):
+    user = require_responsable(request, db)
+    from app.routers.api_v1 import generate_api_key
+    name = name.strip()
+    if not name:
+        set_flash(request, "Un nom est requis.", "error")
+        return RedirectResponse("/admin/api-keys", status_code=302)
+    raw_key, key_hash, key_prefix = generate_api_key()
+    db.add(models.APIKey(
+        name=name,
+        key_hash=key_hash,
+        key_prefix=key_prefix,
+        active=True,
+        created_by=user.id,
+    ))
+    log_activity(db, user, "Création clé API", "api_key", None, name)
+    db.commit()
+    # Pass the raw key once via flash (only shown once)
+    request.session["new_api_key"] = raw_key
+    request.session["new_api_key_name"] = name
+    return RedirectResponse("/admin/api-keys", status_code=302)
+
+
+@router.post("/api-keys/{key_id}/revoke")
+async def revoke_api_key(key_id: int, request: Request, db: Session = Depends(get_db)):
+    user = require_responsable(request, db)
+    key = db.query(models.APIKey).filter(models.APIKey.id == key_id).first()
+    if not key:
+        raise HTTPException(status_code=404)
+    key.active = False
+    log_activity(db, user, "Révocation clé API", "api_key", key_id, key.name)
+    db.commit()
+    set_flash(request, f"Clé « {key.name} » révoquée.")
+    return RedirectResponse("/admin/api-keys", status_code=302)
+
+
+@router.post("/api-keys/{key_id}/delete")
+async def delete_api_key(key_id: int, request: Request, db: Session = Depends(get_db)):
+    user = require_responsable(request, db)
+    key = db.query(models.APIKey).filter(models.APIKey.id == key_id).first()
+    if not key:
+        raise HTTPException(status_code=404)
+    name = key.name
+    log_activity(db, user, "Suppression clé API", "api_key", key_id, name)
+    db.delete(key)
+    db.commit()
+    set_flash(request, f"Clé « {name} » supprimée.")
+    return RedirectResponse("/admin/api-keys", status_code=302)
+
+
 @router.post("/settings/theme")
 async def save_theme(
     request: Request, db: Session = Depends(get_db),

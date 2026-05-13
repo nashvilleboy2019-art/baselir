@@ -162,6 +162,19 @@ class HabilitationHistory(Base):
     user = relationship("User", foreign_keys=[changed_by])
 
 
+class APIKey(Base):
+    __tablename__ = "api_keys"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    key_hash = Column(String(64), nullable=False, unique=True)
+    key_prefix = Column(String(12), nullable=False)
+    active = Column(Boolean, default=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    last_used_at = Column(DateTime, nullable=True)
+    creator = relationship("User", foreign_keys=[created_by])
+
+
 class ActivityLog(Base):
     __tablename__ = "activity_log"
     id = Column(Integer, primary_key=True, index=True)
