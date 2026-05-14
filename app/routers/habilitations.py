@@ -20,6 +20,7 @@ UPLOADS_DIR = os.path.join(
     "uploads"
 )
 ATTESTATIONS_DIR = os.path.join(UPLOADS_DIR, "attestations")
+SENSIBILISATIONS_DIR = os.path.join(UPLOADS_DIR, "sensibilisations")
 ALLOWED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".docx"}
 
 
@@ -128,6 +129,7 @@ async def create_habilitation(request: Request, db: Session = Depends(get_db)):
         domaine_id=_parse_int(form.get("domaine_id", "")),
         date_octroi=_parse_date(form.get("date_octroi", "")),
         date_attestation=_parse_date(form.get("date_attestation", "")),
+        date_sensibilisation=_parse_date(form.get("date_sensibilisation", "")),
         created_by=user.id, updated_by=user.id,
     )
     db.add(h)
@@ -160,6 +162,7 @@ async def detail(hab_id: int, request: Request, db: Session = Depends(get_db)):
         "user": user, "active": "habilitations", "flash": get_flash(request),
         "h": h, "today": today,
         "expired": h.date_attestation and h.date_attestation < today,
+        "sensibilisation_expiree": h.date_sensibilisation and h.date_sensibilisation < today,
     })
 
 
@@ -210,6 +213,7 @@ async def edit_habilitation(hab_id: int, request: Request, db: Session = Depends
     h.domaine_id = _parse_int(form.get("domaine_id", ""))
     h.date_octroi = _parse_date(form.get("date_octroi", ""))
     h.date_attestation = _parse_date(form.get("date_attestation", ""))
+    h.date_sensibilisation = _parse_date(form.get("date_sensibilisation", ""))
     h.updated_by = user.id
 
     custom_map = {ct.id: _parse_int(form.get(f"custom_{ct.id}", ""))
@@ -296,6 +300,63 @@ async def delete_attestation(hab_id: int, request: Request, db: Session = Depend
         db.commit()
 
     set_flash(request, "Preuve d'attestation supprimée.")
+    return RedirectResponse(f"/habilitations/{hab_id}", status_code=302)
+
+
+@router.post("/{hab_id}/upload-sensibilisation")
+async def upload_sensibilisation(
+    hab_id: int, request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    user = require_responsable(request, db)
+    h = db.query(models.Habilitation).filter(models.Habilitation.id == hab_id).first()
+    if not h:
+        raise HTTPException(status_code=404)
+
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        set_flash(request, "Format non autorisé. Utilisez PDF, JPG, PNG ou DOCX.", "error")
+        return RedirectResponse(f"/habilitations/{hab_id}", status_code=302)
+
+    os.makedirs(SENSIBILISATIONS_DIR, exist_ok=True)
+    safe_name = f"sensi_{hab_id}{ext}"
+    dest = os.path.join(SENSIBILISATIONS_DIR, safe_name)
+
+    if h.sensibilisation_filename and h.sensibilisation_filename != safe_name:
+        old = os.path.join(SENSIBILISATIONS_DIR, h.sensibilisation_filename)
+        if os.path.exists(old):
+            os.remove(old)
+
+    with open(dest, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    h.sensibilisation_filename = safe_name
+    h.updated_by = user.id
+    log_activity(db, user, "Upload sensibilisation SI", "habilitation", hab_id, h.nom_prenom)
+    db.commit()
+
+    set_flash(request, "Preuve de sensibilisation enregistrée.")
+    return RedirectResponse(f"/habilitations/{hab_id}", status_code=302)
+
+
+@router.post("/{hab_id}/delete-sensibilisation")
+async def delete_sensibilisation(hab_id: int, request: Request, db: Session = Depends(get_db)):
+    user = require_responsable(request, db)
+    h = db.query(models.Habilitation).filter(models.Habilitation.id == hab_id).first()
+    if not h:
+        raise HTTPException(status_code=404)
+
+    if h.sensibilisation_filename:
+        path = os.path.join(SENSIBILISATIONS_DIR, h.sensibilisation_filename)
+        if os.path.exists(path):
+            os.remove(path)
+        h.sensibilisation_filename = None
+        h.updated_by = user.id
+        log_activity(db, user, "Suppression preuve sensibilisation", "habilitation", hab_id, h.nom_prenom)
+        db.commit()
+
+    set_flash(request, "Preuve de sensibilisation supprimée.")
     return RedirectResponse(f"/habilitations/{hab_id}", status_code=302)
 
 

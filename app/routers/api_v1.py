@@ -63,6 +63,8 @@ def _hab_to_dict(h: models.Habilitation, today: date) -> dict:
         "date_octroi": str(h.date_octroi) if h.date_octroi else None,
         "date_attestation": str(h.date_attestation) if h.date_attestation else None,
         "attestation_expiree": (h.date_attestation < today) if h.date_attestation else None,
+        "date_sensibilisation": str(h.date_sensibilisation) if h.date_sensibilisation else None,
+        "sensibilisation_expiree": (h.date_sensibilisation < today) if h.date_sensibilisation else None,
         "custom_fields": {
             cf.custom_type.label: cf.custom_value.label if cf.custom_value else None
             for cf in h.custom_fields

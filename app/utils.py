@@ -81,6 +81,7 @@ def habilitation_to_dict(h: models.Habilitation, custom_fields=None) -> dict:
         "domaine": h.domaine.label if h.domaine else None,
         "date_octroi": str(h.date_octroi) if h.date_octroi else None,
         "date_attestation": str(h.date_attestation) if h.date_attestation else None,
+        "date_sensibilisation": str(h.date_sensibilisation) if h.date_sensibilisation else None,
     }
     if custom_fields:
         for cf in custom_fields:
