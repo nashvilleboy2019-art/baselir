@@ -17,7 +17,17 @@ from app.utils import get_flash, log_activity, require_login, get_config
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="BaseLIR - Gestion des Habilitations")
+app = FastAPI(
+    title="BaseLIR API",
+    description=(
+        "API REST en lecture seule pour interroger la base des habilitations.\n\n"
+        "**Authentification** : cliquez sur **Authorize** (cadenas) et entrez votre clé `lir_xxxx...`\n\n"
+        "Les clés API sont gérées dans l'interface admin : `/admin/api-keys`."
+    ),
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
 app.add_middleware(SessionMiddleware, secret_key="baselir-change-this-secret-key-in-production")
 
 PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

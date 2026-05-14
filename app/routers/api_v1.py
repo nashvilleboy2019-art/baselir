@@ -3,13 +3,16 @@ import secrets
 from datetime import date, datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Security
+from fastapi.security import APIKeyHeader
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app import models
 
 router = APIRouter()
+
+_api_key_scheme = APIKeyHeader(name="X-API-Key", auto_error=True)
 
 
 def _hash_key(raw_key: str) -> str:
@@ -23,7 +26,7 @@ def generate_api_key() -> tuple[str, str, str]:
 
 
 def verify_api_key(
-    x_api_key: str = Header(..., description="Clé API au format lir_xxxx..."),
+    x_api_key: str = Security(_api_key_scheme),
     db: Session = Depends(get_db),
 ) -> models.APIKey:
     key_hash = _hash_key(x_api_key)
