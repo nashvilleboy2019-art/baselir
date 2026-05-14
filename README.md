@@ -205,6 +205,8 @@ Chaque fiche d'habilitation dispose d'une section **Preuve d'attestation** perme
 
 ## API REST
 
+> Documentation complète : [API.md](API.md)
+
 BaseLIR expose une API REST JSON en **lecture seule** permettant à des applications externes d'interroger les habilitations.
 
 ### Authentification
