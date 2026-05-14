@@ -205,96 +205,15 @@ Chaque fiche d'habilitation dispose d'une section **Preuve d'attestation** perme
 
 ## API REST
 
-> Documentation complète : [API.md](API.md)
+BaseLIR expose une API REST JSON en **lecture seule** — voir [API.md](API.md) pour la documentation complète.
 
-BaseLIR expose une API REST JSON en **lecture seule** permettant à des applications externes d'interroger les habilitations.
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/v1/habilitations` | Liste paginée avec filtres |
+| `GET /api/v1/habilitations/{id}` | Détail d'une habilitation |
+| `GET /api/v1/referentiels` | Référentiels (statuts, domaines, services…) |
 
-### Authentification
-
-Chaque requête doit inclure le header `X-API-Key` avec une clé générée depuis **Admin > API**.
-
-```http
-GET /api/v1/habilitations
-X-API-Key: lir_xxxxxxxxxxxx...
-```
-
-### Endpoints
-
-| Méthode | URL | Description |
-|---------|-----|-------------|
-| `GET` | `/api/v1/habilitations` | Liste paginée avec filtres |
-| `GET` | `/api/v1/habilitations/{id}` | Détail d'une habilitation |
-| `GET` | `/api/v1/referentiels` | Tous les référentiels (statuts, domaines…) |
-
-### Paramètres de filtrage (`/api/v1/habilitations`)
-
-| Paramètre | Type | Description |
-|-----------|------|-------------|
-| `q` | string | Recherche sur le nom/prénom |
-| `statut_id` | int | Filtrer par statut |
-| `domaine_id` | int | Filtrer par domaine |
-| `service_id` | int | Filtrer par service |
-| `societe_id` | int | Filtrer par société |
-| `filiale_id` | int | Filtrer par filiale |
-| `role_id` | int | Filtrer par rôle |
-| `page` | int | Page (défaut: 1) |
-| `per_page` | int | Résultats par page (défaut: 50, max: 200) |
-
-### Exemple de réponse
-
-```json
-{
-  "items": [
-    {
-      "id": 1,
-      "nom_prenom": "Dupont Jean",
-      "statut": "Actif",
-      "statut_id": 1,
-      "domaine": "Finance",
-      "service": "Contrôle interne",
-      "societe": "Meridia SA",
-      "role": "Administrateur",
-      "date_octroi": "2024-01-15",
-      "date_attestation": "2025-01-15",
-      "attestation_expiree": false,
-      "custom_fields": { "Région": "Île-de-France" },
-      "created_at": "2024-01-15T10:30:00",
-      "updated_at": "2024-06-01T08:12:00"
-    }
-  ],
-  "total": 42,
-  "page": 1,
-  "pages": 1,
-  "per_page": 50
-}
-```
-
-### Exemple Python
-
-```python
-import httpx
-
-headers = {"X-API-Key": "lir_xxxx..."}
-base = "http://localhost:8001"
-
-# Lister les habilitations actives du domaine Finance
-resp = httpx.get(f"{base}/api/v1/habilitations", headers=headers,
-                 params={"domaine_id": 3, "statut_id": 1})
-habs = resp.json()["items"]
-
-# Récupérer les IDs de référentiels
-refs = httpx.get(f"{base}/api/v1/referentiels", headers=headers).json()
-```
-
-### Gestion des clés API
-
-Dans **Admin > API** (réservé aux responsables) :
-- Créer une clé en lui donnant un nom (ex: `plandecontrole`)
-- La clé brute (`lir_xxxx...`) s'affiche **une seule fois** — à copier immédiatement
-- Révoquer ou supprimer une clé à tout moment
-- La date de dernière utilisation est tracée automatiquement
-
-La documentation interactive Swagger est accessible sur `/docs`.
+Auth : header `X-API-Key` — clés gérées dans **Admin > API**. Swagger UI : `/docs`.
 
 ---
 
