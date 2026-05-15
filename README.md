@@ -46,9 +46,10 @@ Application web de gestion des habilitations au sein d'une organisation. Remplac
 | Consulter les habilitations | ✓ | ✓ |
 | Créer / modifier / supprimer | ✓ | — |
 | Pièce jointe preuve d'attestation | ✓ | — |
+| Sensibilisation SI (date + preuve + surveillance annuelle) | ✓ | — |
 | Historique des modifications | ✓ | ✓ |
 | Import CSV / Excel | ✓ | — |
-| Page Audit (écarts attestations) | ✓ | ✓ |
+| Page Audit (écarts attestations + sensibilisation SI) | ✓ | ✓ |
 | Tableau de bord statistiques cockpit | ✓ | ✓ |
 | Référentiels personnalisables | ✓ | — |
 | Champs personnalisés dynamiques | ✓ | — |
@@ -149,6 +150,8 @@ BaseLIR/
 | Date d'octroi | Date d'attribution |
 | Date des attestations | Date limite — génère un écart si dépassée |
 | Preuve d'attestation | Pièce jointe (PDF, JPG, PNG, DOCX) pour l'auditabilité |
+| Dernière sensibilisation SI | Date de la dernière sensibilisation à la sécurité des SI — génère un écart si > 1 an |
+| Preuve de sensibilisation SI | Pièce jointe pour la sensibilisation (PDF, JPG, PNG, DOCX) |
 | Champs perso. | Champs supplémentaires créés par l'admin |
 
 ## Champs personnalisés dynamiques
@@ -202,6 +205,10 @@ L'onglet **Statistiques** du tableau de bord offre un cockpit de pilotage :
 ## Preuve d'attestation
 
 Chaque fiche d'habilitation dispose d'une section **Preuve d'attestation** permettant de joindre un document justificatif (PDF, JPG, PNG, DOCX). Le fichier est stocké dans `uploads/attestations/` et accessible via un lien direct depuis la fiche. Cette fonctionnalité est réservée aux responsables.
+
+## Sensibilisation à la sécurité des SI
+
+Chaque habilitation peut enregistrer la **date de la dernière sensibilisation SI** et une pièce jointe (preuve), stockée dans `uploads/sensibilisations/`. La sensibilisation est à renouveler annuellement. Tout dépassement est visible dans la page **Audit > Sensibilisation SI** (onglet dédié, en orange), avec le retard en jours, les compteurs par domaine, et un lien de régularisation pour les responsables.
 
 ## API REST
 

@@ -119,6 +119,8 @@ Retournée par les deux endpoints ci-dessus.
   "date_octroi": "2024-01-15",
   "date_attestation": "2025-01-15",
   "attestation_expiree": false,
+  "date_sensibilisation": "2025-03-10",
+  "sensibilisation_expiree": false,
   "custom_fields": { "Région": "Île-de-France" },
   "created_at": "2024-01-15T10:30:00",
   "updated_at": "2024-06-01T08:12:00"
@@ -132,6 +134,14 @@ Retournée par les deux endpoints ci-dessus.
 | `false` | Date renseignée et non dépassée |
 | `true` | Date dépassée — habilitation en écart |
 | `null` | Pas de date d'attestation renseignée |
+
+**`sensibilisation_expiree`**
+
+| Valeur | Signification |
+|--------|---------------|
+| `false` | Sensibilisation SI renseignée et < 1 an |
+| `true` | Dernière sensibilisation SI > 1 an — habilitation en écart |
+| `null` | Pas de date de sensibilisation renseignée |
 
 ---
 
